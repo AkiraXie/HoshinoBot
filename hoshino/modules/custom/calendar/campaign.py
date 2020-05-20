@@ -113,7 +113,7 @@ short_name = {
     'dropAmountShrine': '圣迹',
     'dropAmountTemple': '神殿',
     'manaExploration': '探索',
-    'dropAmountVeryHard': 'V H ',
+    'dropAmountVeryHard': 'VH图',
 }
 
 
