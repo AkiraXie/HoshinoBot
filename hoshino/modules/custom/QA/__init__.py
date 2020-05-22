@@ -1,12 +1,10 @@
 import time
 
-from nonebot import get_bot
-from nonebot import CommandSession, MessageSegment
-from nonebot import permission as perm
+
 from .data import Question
 from hoshino.service import Service, Privilege as Priv
 answers = {}
-sv = Service('QA', enable_on_default=False)
+sv = Service('QA')
 
 
 def union(group_id, user_id):

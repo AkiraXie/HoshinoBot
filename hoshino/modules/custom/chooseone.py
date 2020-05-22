@@ -1,7 +1,7 @@
 import random
 from hoshino import Service
 
-sv = Service('chooseone', enable_on_default=False)
+sv = Service('chooseone')
 
 
 @sv.on_message('group')

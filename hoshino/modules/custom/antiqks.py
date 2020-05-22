@@ -1,7 +1,7 @@
 import aiohttp
 from hoshino import R, Service
 
-sv = Service('antiqks', enable_on_default=False)
+sv = Service('antiqks')
 
 qks_url = ["granbluefantasy.jp"]
 qksimg = R.img('qksimg.jpg').cqcode

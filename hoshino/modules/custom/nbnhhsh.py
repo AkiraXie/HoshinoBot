@@ -1,7 +1,7 @@
 from hoshino import Service
 import aiohttp
 
-sv = Service('nbnhhsh', enable_on_default=False)
+sv = Service('nbnhhsh')
 
 
 @sv.on_rex(r'^[\?\？]{1,2} ?([a-z0-9]+)$', normalize=True, event='group')

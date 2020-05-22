@@ -2,7 +2,7 @@
 import random
 from hoshino import R, CommandSession, Service
 
-sv1 = Service('justplay', enable_on_default=False)
+sv1 = Service('justplay')
 nothing = R.img('priconne/quick/我什么都没有.png').cqcode
 prof = R.img('priconne/quick/专业团队.png').cqcode
 resp = R.img('priconne/quick/respect.jpg').cqcode
