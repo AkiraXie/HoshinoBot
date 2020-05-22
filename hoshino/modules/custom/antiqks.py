@@ -1,7 +1,7 @@
 import aiohttp
-from hoshino import R, Service
+from hoshino import R, Service,Privilege as Priv
 
-sv = Service('antiqks')
+sv = Service('antiqks',visible=False,manage_priv=Priv.SUPERUSER)
 
 qks_url = ["granbluefantasy.jp"]
 qksimg = R.img('qksimg.jpg').cqcode
