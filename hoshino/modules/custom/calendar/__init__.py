@@ -17,12 +17,12 @@ async def bl_check_ver():
 
 @svjp.scheduled_job('cron',hour='5,11,17,23',minute='00')
 async def push_jp_maiyao():
-    await svjp.broadcast(maiyao, 'maiyao-jp')
+    await svjp.broadcast(f'{maiyao}', 'maiyao-jp')
 
 
 @svbl.scheduled_job('cron',hour='0,6,12,18',minute='00')
 async def push_bl_maiyao():
-    await svbl.broadcast(maiyao, 'maiyao-bl')
+    await svbl.broadcast(f'{maiyao}', 'maiyao-bl')
 
 
 @svjp.scheduled_job('cron', hour='15', minute='05')

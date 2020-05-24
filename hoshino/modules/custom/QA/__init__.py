@@ -27,6 +27,9 @@ async def handle(bot, context):
             await bot.send(context, '发送“我问xxx你答yyy”我才能记住', at_sender=False)
             return
         q, a = msg
+        if 'granbluefantasy.jp' in q or a:
+            await bot.send(context,'骑空士还挺会玩儿？爬！\n'+R.img('qksimg.jpg').cqcode,at_sender=True)
+            return
         if q not in answers:
             answers[q] = {}
         answers[q][union(context['group_id'], context['user_id'])] = a
@@ -99,6 +102,9 @@ async def answer(bot, context):
     ans = answers.get(context['raw_message'])
     if ans:
         a = ans.get(union(context['group_id'], context['user_id']))
+        if 'granbluefantasy.jp' in a:
+            await bot.send(context,'骑空士还挺会玩儿？爬！\n'+R.img('qksimg.jpg').cqcode,at_sender=True)
+            return
         if a:
             await bot.send(context, f'{a}', at_sender=False)
             return
