@@ -27,7 +27,7 @@ async def handle(bot, context):
             await bot.send(context, '发送“我问xxx你答yyy”我才能记住', at_sender=False)
             return
         q, a = msg
-        if 'granbluefantasy.jp' in q or a:
+        if 'granbluefantasy.jp' in q or 'granbluefantasy.jp' in a:
             await bot.send(context,'骑空士还挺会玩儿？爬！\n'+R.img('qksimg.jpg').cqcode,at_sender=True)
             return
         if q not in answers:
