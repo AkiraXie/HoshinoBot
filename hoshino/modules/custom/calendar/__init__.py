@@ -1,9 +1,9 @@
-from hoshino import Service
+from hoshino import Service,R
 from .calendar import *
 
 svjp = Service('calendar-jp', enable_on_default=False)
 svbl = Service('calendar-bili', enable_on_default=False)
-
+maiyao=R.img('maiyao.png').cqcode
 
 @svjp.scheduled_job('cron', minute='08', jitter=20)
 async def jp_check_ver():
@@ -13,6 +13,16 @@ async def jp_check_ver():
 @svbl.scheduled_job('cron', minute='02', jitter=20)
 async def bl_check_ver():
     check_ver(svbl, 'bili')
+
+
+@svjp.scheduled_job('cron',hour='5 11 17 23',minute='00')
+async def push_jp_maiyao():
+    await svjp.broadcast(maiyao, 'maiyao-jp')
+
+
+@svbl.scheduled_job('cron',hour='0 6 12 18',minute='00')
+async def push_bl_maiyao():
+    await svbl.broadcast(maiyao, 'maiyao-bl')
 
 
 @svjp.scheduled_job('cron', hour='15', minute='05')
