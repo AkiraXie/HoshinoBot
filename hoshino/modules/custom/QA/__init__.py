@@ -2,7 +2,7 @@ import time
 
 
 from .data import Question
-from hoshino.service import Service, Privilege as Priv,R
+from hoshino import Service, Privilege as Priv,R
 answers = {}
 sv = Service('QA')
 
