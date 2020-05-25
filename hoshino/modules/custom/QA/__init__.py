@@ -2,7 +2,7 @@ import time
 
 
 from .data import Question
-from hoshino.service import Service, Privilege as Priv
+from hoshino.service import Service, Privilege as Priv,R
 answers = {}
 sv = Service('QA')
 
@@ -102,13 +102,13 @@ async def answer(bot, context):
     ans = answers.get(context['raw_message'])
     if ans:
         a = ans.get(union(context['group_id'], context['user_id']))
-        if 'granbluefantasy.jp' in a:
-            await bot.send(context,'骑空士还挺会玩儿？爬！\n'+R.img('qksimg.jpg').cqcode,at_sender=True)
-            return
         if a:
+            if 'granbluefantasy.jp' in a:
+                await bot.send(context,'骑空士还挺会玩儿？爬！\n'+R.img('qksimg.jpg').cqcode,at_sender=True)
+                return
             await bot.send(context, f'{a}', at_sender=False)
             return
-        a = ans.get(union(context['group_id'], 1))
-        if a:
-            await bot.send(context, f'{a}', at_sender=False)
+        b = ans.get(union(context['group_id'], 1))
+        if b:
+            await bot.send(context, f'{b}', at_sender=False)
             return
