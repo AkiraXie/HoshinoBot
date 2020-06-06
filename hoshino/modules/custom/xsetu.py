@@ -14,5 +14,9 @@ async def getsetu():
 
 @sv.on_rex(r'^(不够[涩瑟色]|[涩瑟色]图|来一?[点份张].*[涩瑟色]|再来[点份张]|看过了|铜)', normalize=True)
 async def pushsetu(bot, ctx, match):
-    msg=await getsetu()
-    await bot.send(ctx,msg)
+    try:
+        msg=await getsetu()
+        await bot.send(ctx,msg)
+    except:
+        await bot.send(ctx,'它太色了，被吃掉了QAQ')
+        return
