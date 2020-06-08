@@ -62,7 +62,7 @@ async def setqa(bot, context):
             create_time=time.time(),
         ).execute()
         await bot.send(context, f'好的我记住了', at_sender=False)
-    elif message.startswith('不要回答'):
+    elif message.startswith('不要回答') or message.startswith('不再回答'):
         q = context['raw_message'][4:]
         ans = answers.get(q)
         if ans is None:
@@ -78,7 +78,7 @@ async def setqa(bot, context):
             del ans[specific]
             if not ans:
                 del answers[q]
-            await bot.send(context, f'我不再回答{a}', at_sender=False)
+            await bot.send(context, f'我不再回答"{a}"了', at_sender=False)
 
         if not sv.check_priv(context, required_priv=Priv.ADMIN):
             await bot.send(context, f'只有管理员才能删除别人的问题', at_sender=False)
@@ -94,7 +94,7 @@ async def setqa(bot, context):
             del ans[wild]
             if not ans:
                 del answers[q]
-            await bot.send(context, f'我不再回答{a}', at_sender=False)
+            await bot.send(context, f'我不再回答"{a}"了', at_sender=False)
 
 
 @sv.on_command('查找QA',aliases=('查询问题','查找问题','看看QA','看看qa','看看问题'))
@@ -106,7 +106,16 @@ async def lookqa(session: CommandSession):
     for res in result:
         msg.append(res.quest)
     await session.send('\n'.join(msg), at_sender=True)
-
+@sv.on_command('查看有人问',aliases=('看看有人问','看看大家问','查找有人问'))
+async def lookgqa(session: CommandSession):
+    if not sv.check_priv(session.ctx, required_priv=Priv.ADMIN):
+        session.finish('只有管理员才可以查看有人问')
+    gid=session.ctx['group_id']
+    result=Question.select(Question.quest).where(Question.rep_group==gid,Question.rep_member==1)
+    msg=['该群设置的"有人问"是:']
+    for res in result:
+        msg.append(res.quest)
+    await session.send('\n'.join(msg), at_sender=True)
 @sv.on_message('group')
 async def answer(bot, context):
     ans = answers.get(context['raw_message'])
