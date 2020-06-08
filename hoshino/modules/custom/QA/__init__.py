@@ -2,7 +2,7 @@ import time
 
 
 from .data import Question
-from hoshino import Service, Privilege as Priv,R
+from hoshino import Service, Privilege as Priv,R,CommandSession
 answers = {}
 sv = Service('QA')
 
@@ -19,7 +19,7 @@ for qu in Question.select():
 
 
 @sv.on_message('group')
-async def handle(bot, context):
+async def setqa(bot, context):
     message = context['raw_message']
     if message.startswith('我问'):
         msg = message[2:].split('你答', 1)
@@ -96,6 +96,16 @@ async def handle(bot, context):
                 del answers[q]
             await bot.send(context, f'我不再回答{a}', at_sender=False)
 
+
+@sv.on_command('查找QA',aliases=('查询问题','查找问题','看看QA','看看qa','看看问题'))
+async def lookqa(session: CommandSession):
+    uid=session.ctx['user_id']
+    gid=session.ctx['group_id']
+    result=Question.select(Question.quest).where(Question.rep_group==gid,Question.rep_member==uid)
+    msg=['您在该群中设置的问题是:']
+    for res in result:
+        msg.append(res.quest)
+    await session.send('\n'.join(msg), at_sender=True)
 
 @sv.on_message('group')
 async def answer(bot, context):
