@@ -16,6 +16,7 @@ async def getsetu():
 
 @sv.on_rex(r'^(不够[涩瑟色]|[涩瑟色]图|来一?[点份张].*[涩瑟色]|再来[点份张]|看过了|铜)', normalize=True)
 async def pushsetu(bot, ctx, match):
+    uid=ctx['user_id']
     if not _nlmt.check(uid):
         await bot.send(ctx, EXCEED_NOTICE, at_sender=True)
         return
