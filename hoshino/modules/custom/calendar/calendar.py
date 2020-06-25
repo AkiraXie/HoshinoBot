@@ -89,7 +89,7 @@ def campaign_logout(campaign, value):
     return name, vlue
 
 
-def db_message(sv, serid, tense='all', lastday=7):
+async def db_message(sv, serid, tense='all', lastday=7):
     if serid == 'bili':
         database_path = bililist[2]
         fmsg='B服日程'
