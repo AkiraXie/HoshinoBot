@@ -1,4 +1,4 @@
-import requests
+from hoshino import aiorequests
 import json
 import brotli
 import time
@@ -26,23 +26,23 @@ jp_ver = os.path.join(_resource_path, 'jp_ver.json')
 jplist = [jp_url, jp_verurl, jp_db, jp_ver]
 
 
-def updateDB(sv: Service, serid):
+async def updateDB(sv: Service, serid):
     if serid == 'jp':
         ls = jplist
     if serid == 'bili':
         ls = bililist
-    ver_res = requests.get(ls[1])
+    ver_res =await aiorequests.get(ls[1])
     if ver_res.status_code != 200:
         sv.logger.warning('连接服务器失败')
         return
-    ver_get = ver_res.content
+    ver_get=await ver_res.content
     ver = json.loads(ver_get)
     ver_path = ls[3]
-    db_res = requests.get(ls[0])
+    db_res =await aiorequests.get(ls[0])
     if db_res.status_code != 200:
         sv.logger.warning('连接服务器失败')
         return
-    data_get = db_res.content
+    data_get =await db_res.content
     data = brotli.decompress(data_get)
     db_path = ls[2]
     with open(db_path, 'wb') as dbfile:
@@ -54,7 +54,7 @@ def updateDB(sv: Service, serid):
     sv.logger.info(f'{serid}数据库更新成功')
 
 
-def check_ver(sv: Service, serid):
+async def check_ver(sv: Service, serid):
     if serid == 'jp':
         ls = jplist
     if serid == 'bili':
@@ -64,20 +64,21 @@ def check_ver(sv: Service, serid):
             local_ver = json.load(vfile)
     except FileNotFoundError as e:
         sv.logger.warning(f'未发现{serid}数据库,将会稍后创建')
-        updateDB(sv, serid)
+        await updateDB(sv, serid)
         return
-    ver_res = requests.get(ls[1])
+    ver_res = await aiorequests.get(ls[1])
     if ver_res.status_code != 200:
         sv.logger.warning('连接服务器失败')
         return
-    ver_get = ver_res.content
+    ver_get = await ver_res.content
     online_ver = json.loads(ver_get)
     if local_ver == online_ver:
         sv.logger.info(f'未发现{serid}数据库更新')
-        pass
+        return 1
     else:
         sv.logger.info(f'发现{serid}数据库更新,将会稍后更新')
-        updateDB(sv, serid)
+        await updateDB(sv, serid)
+        return 2
 
 
 def campaign_logout(campaign, value):
@@ -96,7 +97,7 @@ def db_message(sv, serid, tense='all', lastday=7):
         database_path = jplist[2]
         fmsg='日服日程'
     if not os.path.exists(database_path):
-        updateDB(sv, serid)
+        await updateDB(sv, serid)
     db = sqlite3.connect(database_path)
     selectcampaign = '''
     SELECT campaign_category, value, start_time, end_time

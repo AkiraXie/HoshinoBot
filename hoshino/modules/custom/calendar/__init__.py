@@ -5,14 +5,14 @@ svjp = Service('calendar-jp', enable_on_default=False)
 svbl = Service('calendar-bili', enable_on_default=False)
 maiyao=R.img('maiyao.png').cqcode
 
-@svjp.scheduled_job('cron', minute='08', jitter=20)
+@svjp.scheduled_job('cron', hour='*/3', jitter=40)
 async def jp_check_ver():
-    check_ver(svjp, 'jp')
+    await check_ver(svjp, 'jp')
 
 
-@svbl.scheduled_job('cron', minute='02', jitter=20)
+@svbl.scheduled_job('cron', hour='*/3', jitter=40)
 async def bl_check_ver():
-    check_ver(svbl, 'bili')
+    await check_ver(svbl, 'bili')
 
 
 @svjp.scheduled_job('cron',hour='5,11,17,23',minute='00')
@@ -47,7 +47,15 @@ async def look_jp_calendar(bot, ctx, match):
     if is_all:
         await bot.send(ctx, db_message(svjp, 'jp', 'all'), at_sender=True)
 
-
+@svbl.on_command('updateb',aliases=('update国服'))
+async def bl_update_ver(session):
+    res=await check_ver(svbl, 'bili')
+    if  1==res:
+        await session.send('未发现b服数据库更新')
+    elif 2==res:
+        await session.send('发现b服数据库更新')
+    else:
+        await session.send('b服数据库更新出错')
 @svbl.on_rex(r'^[bB国]服(当前|预定)?日程$', normalize=True, event='group')
 async def look_bilibili_calendar(bot, ctx, match):
     is_now = match.group(1) == '当前'
