@@ -12,3 +12,4 @@ numpy>=1.18.0
 beautifulsoup4>=4.9.0
 brotli
 peewee
+aiohttp
