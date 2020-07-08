@@ -105,7 +105,7 @@ async def lookqa(session: CommandSession):
     msg=['您在该群中设置的问题是:']
     for res in result:
         msg.append(res.quest)
-    await session.send('\n'.join(msg), at_sender=True)
+    await session.send('/'.join(msg), at_sender=True)
 @sv.on_command('查看有人问',aliases=('看看有人问','看看大家问','查找有人问'))
 async def lookgqa(session: CommandSession):
     if not sv.check_priv(session.ctx, required_priv=Priv.ADMIN):
@@ -115,7 +115,7 @@ async def lookgqa(session: CommandSession):
     msg=['该群设置的"有人问"是:']
     for res in result:
         msg.append(res.quest)
-    await session.send('\n'.join(msg), at_sender=True)
+    await session.send('/'.join(msg), at_sender=True)
 @sv.on_message('group')
 async def answer(bot, context):
     ans = answers.get(context['raw_message'])
