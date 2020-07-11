@@ -38,9 +38,9 @@ def normname(name:str) -> str:
     return name
 
 class Chara:
-    
+
     UNKNOWN = 1000
-    
+
     def __init__(self, id_, star=3, equip=0):
         self.id = id_
         self.star = star
@@ -76,7 +76,28 @@ class Chara:
         if not res.exist:
             res = R.img(f'priconne/unit/icon_unit_{Chara.UNKNOWN}31.png')
         return res
-
+    @property
+    def card(self):
+        if self.star==0 or self.star==6:
+            star='6'
+        elif 3<=self.star<=5:
+            star='3'
+        else :
+            star="1"
+        tip=f"{self.name}{star}星卡面：\n"
+        res = R.img(f'priconne/card/{self.id}{star}1.png')
+        if not res.exist:
+            if self.star==6:
+                tip=f"{self.name}没有6星卡面，将展示3星卡面：\n"
+            else:
+                tip=f"{self.name}3星卡面：\n"
+            res = R.img(f'priconne/card/{self.id}31.png')
+        if not res.exist:
+            tip=f"{self.name}1星卡面：\n"
+            res = R.img(f'priconne/card/{self.id}11.png')
+        if not res.exist:
+            res = R.img(f'priconne/card/{Chara.UNKNOWN}31.png')
+        return tip+f'{res.cqcode}'
 
     def gen_icon_img(self, size, star_slot_verbose=True) -> Image:
         try:
