@@ -67,7 +67,12 @@ class Chara:
 
     @property
     def icon(self) -> ResImg:
-        star = '3' if 1 <= self.star <= 5 else '6'
+        if self.star==0 or self.star==6:
+            star='6'
+        elif 3<=self.star<=5:
+            star='3'
+        else :
+            star="1"
         res = R.img(f'priconne/unit/icon_unit_{self.id}{star}1.png')
         if not res.exist:
             res = R.img(f'priconne/unit/icon_unit_{self.id}31.png')
@@ -96,7 +101,7 @@ class Chara:
             tip=f"{self.name}1星卡面：\n"
             res = R.img(f'priconne/card/{self.id}11.png')
         if not res.exist:
-            res = R.img(f'priconne/card/{Chara.UNKNOWN}31.png')
+            res = R.img(f'priconne/unit/icon_unit_{Chara.UNKNOWN}31.png')
         return tip+f'{res.cqcode}'
 
     def gen_icon_img(self, size, star_slot_verbose=True) -> Image:
