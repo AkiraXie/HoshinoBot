@@ -125,7 +125,9 @@ async def check_tenjo_num(session):
 @sv.on_command('仓库',deny_tip=GACHA_DISABLE_NOTICE,aliases=('看看仓库','我的仓库'))
 async def show_collection(session):
     uid = str(session.ctx['user_id'])
-    uset=load_user_collection(uid)[uid]
+    uset=set(load_user_collection(uid)[uid])
+    uset.discard("未知角色")
+    uset=list(uset)
     length = len(uset)
     if length <= 0:
         session.finish('您的仓库为空,请多多抽卡哦~',at_sender=True)
@@ -144,6 +146,8 @@ async def show_collection(session):
     f'{res}',
     f'您共有{length}个三星角色~'
     ]
+    ucollection[uid]=list(uset)
+    dump_user_collection(uid,ucollection)
     await session.send('\n'.join(msg), at_sender=True)
 
 @sv.on_command('gacha_1', deny_tip=GACHA_DISABLE_NOTICE, aliases=gacha_1_aliases, only_to_me=False)
