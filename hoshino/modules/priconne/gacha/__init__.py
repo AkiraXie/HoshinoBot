@@ -125,7 +125,8 @@ async def check_tenjo_num(session):
 @sv.on_command('仓库',deny_tip=GACHA_DISABLE_NOTICE,aliases=('看看仓库','我的仓库'))
 async def show_collection(session):
     uid = str(session.ctx['user_id'])
-    uset=set(load_user_collection(uid)[uid])
+    ucollection=load_user_collection(uid)
+    uset=set(ucollection[uid])
     uset.discard("未知角色")
     uset=list(uset)
     length = len(uset)
