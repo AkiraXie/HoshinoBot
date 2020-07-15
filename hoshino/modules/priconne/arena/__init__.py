@@ -16,7 +16,7 @@ DISABLE_NOTICE = '本群竞技场查询功能已禁用\n如欲开启，请与维
 lmt = FreqLimiter(5)
 
 aliases = ('怎么拆', '怎么解', '怎么打', '如何拆', '如何解', '如何打', '怎麼拆', '怎麼解', '怎麼打', 'jjc查询', 'jjc查詢')
-aliases_b = tuple('b' + a for a in aliases) + tuple('B' + a for a in aliases)
+aliases_b = tuple('b' + a for a in aliases) + tuple('B' + a for a in aliases)+tuple('国' + a for a in aliases)
 aliases_tw = tuple('台' + a for a in aliases)
 aliases_jp = tuple('日' + a for a in aliases)
 
@@ -58,7 +58,7 @@ async def _arena_query(session:CommandSession, region:int):
     defen = [ Chara.name2id(name) for name in argv ]
     for i, id_ in enumerate(defen):
         if Chara.UNKNOWN == id_:
-            await session.finish(f'编队中含未知角色"{argv[i]}"，请尝试使用官方译名\n您可@bot来杯咖啡+反馈未收录别称\n或前往 github.com/Ice-Cirno/HoshinoBot/issues/5 回帖补充', at_sender=True)
+            session.finish(f'编队中含未知角色"{argv[i]}"', at_sender=True)
     if len(defen) != len(set(defen)):
         await session.finish('编队中出现重复角色', at_sender=True)
     if 1004 in defen:
@@ -71,7 +71,7 @@ async def _arena_query(session:CommandSession, region:int):
 
     # 处理查询结果
     if res is None:
-        session.finish('查询出错，请联系维护组调教\n请先移步pcrdfans.com进行查询', at_sender=True)
+        session.finish('查询出错，请再次查询\n如果多次查询失败，请先移步pcrdfans.com进行查询，并可联系维护组', at_sender=True)
     if not len(res):
         session.finish('抱歉没有查询到解法\n※没有作业说明随便拆 发挥你的想象力～★\n作业上传请前往pcrdfans.com', at_sender=True)
     res = res[:min(6, len(res))]    # 限制显示数量，截断结果
@@ -101,10 +101,10 @@ async def _arena_query(session:CommandSession, region:int):
         defen,
         f'已为骑士{at}查询到以下进攻方案：',
         str(atk_team),
-        f'作业评价：', 
+        f'作业评价：',
         *details,
         '※发送"点赞/点踩"可进行评价',
-        '※请升级手Q至8.3.5以查看图片',
+        '※手机QQ可能会出现吞图情况，请点开大图查看',
     ]
     if region == 1:
         msg.append('※使用"b怎么拆"或"台怎么拆"可按服过滤')

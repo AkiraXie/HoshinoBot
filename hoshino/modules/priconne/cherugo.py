@@ -11,9 +11,10 @@
 import re
 from itertools import zip_longest
 from nonebot.message import escape
-from hoshino import Service, CommandSession
+from hoshino import Service, CommandSession,util,R
 
 sv = Service('pcr-cherugo')
+qksimg = R.img('qksimg.jpg').cqcode
 
 CHERU_SET = '切卟叮咧哔唎啪啰啵嘭噜噼巴拉蹦铃'
 CHERU_DIC = { c: i for i, c in enumerate(CHERU_SET) }
@@ -53,16 +54,14 @@ def str2cheru(s:str) -> str:
 
 def cheru2str(c:str) -> str:
     return rex_cheru_word.sub(lambda w: cheru2word(w.group()), c)
-    # s = []
-    # for w in rex_split.split(c):
-    #     if rex_word.search(w):
-    #         w = cheru2word(w)
-    #     s.append(w)
-    # return ''.join(s)
+
 
 @sv.on_command('切噜一下')
 async def cherulize(session:CommandSession):
     s = session.current_arg_text
+    if 'granbluefantasy.jp' in s:
+        session.finish(f'骑空士爬\n{qksimg}', at_sender=True)
+        await util.silence(session.ctx, 60)
     if len(s) > 500:
         session.finish('切、切噜太长切不动勒切噜噜...', at_sender=True)
     session.finish('切噜～♪' + str2cheru(s))
@@ -74,4 +73,8 @@ async def decherulize(bot, ctx, match):
         await bot.send(ctx, '切、切噜太长切不动勒切噜噜...', at_sender=True)
         return
     msg = '的切噜噜是：\n' + escape(cheru2str(s))
+    if 'granbluefantasy.jp' in msg:
+        await bot.send(ctx,f'骑空士爬\n{qksimg}', at_sender=True)
+        await util.silence(ctx, 60)
+        return
     await bot.send(ctx, msg, at_sender=True)

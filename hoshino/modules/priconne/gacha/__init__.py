@@ -43,7 +43,7 @@ gacha_10_aliases = ('抽十连', '十连', '十连！', '十连抽', '来个十�
                     '10連', '10連！', '10連抽', '來個10連', '來發10連', '來次10連', '抽個10連', '抽發10連', '抽次10連', '10連轉蛋', '轉蛋10連')
 gacha_1_aliases = ('单抽', '单抽！', '来发单抽', '来个单抽', '来次单抽', '扭蛋单抽', '单抽扭蛋',
                    '單抽', '單抽！', '來發單抽', '來個單抽', '來次單抽', '轉蛋單抽', '單抽轉蛋')
-gacha_300_aliases = ('抽一井', '来一井', '来发井', '抽发井', '天井扭蛋', '扭蛋天井', '天井轉蛋', '轉蛋天井')
+gacha_300_aliases = ('抽一井', '来一井', '来发井', '抽发井', '天井扭蛋', '扭蛋天井', '天井轉蛋', '轉蛋天井','抽井')
 
 
 _collection_path=os.path.expanduser('~/.hoshino/collections')
@@ -63,8 +63,8 @@ def load_user_collection(uid:str):
             ucollection={}
             ucollection[uid]=[]
             json.dump(ucollection, f, ensure_ascii=False)
-            return ucollection
             f.close()
+            return ucollection
 
 def dump_user_collection(uid:str,ucollection):
     with open(os.path.join(_collection_path,f'{uid}.json'), 'w', encoding='utf8') as f:
@@ -92,9 +92,7 @@ async def set_pool(session):
     name = util.normalize_str(session.current_arg_text)
     if not name:
         session.finish(POOL_NAME_TIP, at_sender=True)
-    elif name in ('国', '国服', 'cn'):
-        session.finish('请选择以下卡池\n> 选择卡池 b服\n> 选择卡池 台服')
-    elif name in ('b', 'b服', 'bl', 'bilibili'):
+    elif name in ('b', 'b服', 'bl', 'bilibili','国', '国服', 'cn'):
         name = 'BL'
     elif name in ('台', '台服', 'tw', 'sonet'):
         name = 'TW'
@@ -234,7 +232,6 @@ async def gacha_300(session):
         uset.add(c.name)
     ucollection[uid]=list(uset)
     dump_user_collection(uid,ucollection)
-    random.shuffle(res)
     lenth = len(res)
     if lenth <= 0:
         res = "竟...竟然没有3★？！"
@@ -259,7 +256,7 @@ async def gacha_300(session):
     elif up == 0 and s3 > 7:
         msg.append("up呢？我的up呢？")
     elif up == 0 and s3 <= 3:
-        msg.append("这位酋长，梦幻包考虑一下？")
+        msg.append("这位酋长，大月卡考虑一下？")
     elif up == 0:
         msg.append("据说天井的概率只有12.16%")
     elif up <= 2:
@@ -274,9 +271,11 @@ async def gacha_300(session):
         else:
             msg.append("期望之内，亚洲水平")
     elif up == 3:
-        msg.append("抽井母五一气呵成！多出30等专武～")
+        msg.append("抽井母五一气呵成！您就是欧洲人？")
     elif up >= 4:
         msg.append("记忆碎片一大堆！您是托吧？")
+    if lenth==4:
+        msg.append('手机QQ会出现吞图情况,请点开大图查看结果')
     await session.send('\n'.join(msg), at_sender=True)
     silence_time = (100*up + 50*(up+s3) + 10*s2 + s1) * 1
     await silence(session.ctx, silence_time)
