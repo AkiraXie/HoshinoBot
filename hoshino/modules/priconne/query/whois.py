@@ -15,8 +15,11 @@ async def whois(bot, ctx, match):
     name = match.group(1)
     chara = Chara.fromname(name, star=0)
     if chara.id == Chara.UNKNOWN:
-        _lmt.start_cd(uid, 300)
-        await bot.send(ctx, f'兰德索尔似乎没有叫"{name}"的人\n您的下次查询将于5分钟后可用', at_sender=True)
+        msg=[f'兰德索尔似乎没有叫"{name}"的人']
+        if uid not in bot.config.SUPERUSERS:
+            _lmt.start_cd(uid, 300)
+            msg.append('您的下次查询将于5分钟后可用')
+        await bot.send(ctx, '\n'.join(msg), at_sender=True)
         return
 
     msg = f'\n{chara.name}\n{chara.icon.cqcode}'
@@ -32,8 +35,11 @@ async def lookcard(bot,ctx,match):
     star=match.group(1)[0] if match.group(1) else 0
     chara = Chara.fromname(name, star=int(star))
     if chara.id == Chara.UNKNOWN:
-        _lmt1.start_cd(uid, 300)
-        await bot.send(ctx, f'兰德索尔似乎没有叫"{name}"的人\n您的下次查询将于5分钟后可用', at_sender=True)
+        msg=[f'兰德索尔似乎没有叫"{name}"的人']
+        if uid not in bot.config.SUPERUSERS:
+            _lmt1.start_cd(uid, 300)
+            msg.append('您的下次查询将于5分钟后可用')
+        await bot.send(ctx, '\n'.join(msg), at_sender=True)
         return
     await bot.send(ctx, "图片较大，请稍等片刻")
     msg = f'\n{chara.card}'

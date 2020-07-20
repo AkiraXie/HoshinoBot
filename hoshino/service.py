@@ -21,8 +21,6 @@ from nonebot.command import _FinishException, _PauseException, SwitchException
 from hoshino import util, logger
 
 
-
-
 class Privilege:
     """The privilege of user discribed in an `int` number.
 
@@ -41,8 +39,9 @@ class Privilege:
     WHITE = 51
     SUPERUSER = 999
 
+
 # service management
-_loaded_services:Dict[str, "Service"] = {}   # {name: service}
+_loaded_services: Dict[str, "Service"] = {}   # {name: service}
 _re_illegal_char = re.compile(r'[\\/:*?"<>|\.]')
 _service_config_dir = os.path.expanduser('~/.hoshino/service_config/')
 os.makedirs(_service_config_dir, exist_ok=True)
@@ -50,7 +49,8 @@ os.makedirs(_service_config_dir, exist_ok=True)
 # logging
 _error_log_file = os.path.expanduser('~/.hoshino/error.log')
 _critical_log_file = os.path.expanduser('~/.hoshino/critical.log')
-_formatter = logging.Formatter('[%(asctime)s %(name)s] %(levelname)s: %(message)s')
+_formatter = logging.Formatter(
+    '[%(asctime)s %(name)s] %(levelname)s: %(message)s')
 _default_handler = logging.StreamHandler(sys.stdout)
 _default_handler.setFormatter(_formatter)
 _error_handler = logging.FileHandler(_error_log_file, encoding='utf8')
@@ -92,7 +92,6 @@ def _save_service_config(service):
         }, f, ensure_ascii=False, indent=2)
 
 
-
 class Service:
     """将一组功能包装为服务, 提供增强的触发条件与分群权限管理.
 
@@ -122,12 +121,14 @@ class Service:
         定义一个服务
         配置的优先级别：配置文件 > 程序指定 > 缺省值
         """
-        assert not _re_illegal_char.search(name), 'Service name cannot contain character in [\\/:*?"<>|.]'
+        assert not _re_illegal_char.search(
+            name), 'Service name cannot contain character in [\\/:*?"<>|.]'
 
         config = _load_service_config(name)
         self.name = name
         self.use_priv = config.get('use_priv') or use_priv or Privilege.NORMAL
-        self.manage_priv = config.get('manage_priv') or manage_priv or Privilege.ADMIN
+        self.manage_priv = config.get(
+            'manage_priv') or manage_priv or Privilege.ADMIN
         self.enable_on_default = config.get('enable_on_default')
         if self.enable_on_default is None:
             self.enable_on_default = enable_on_default
@@ -142,14 +143,14 @@ class Service:
         self.disable_group = set(config.get('disable_group', []))
 
         self.logger = logging.getLogger(name)
-        self.logger.setLevel(logging.DEBUG if self.bot.config.DEBUG else logging.INFO)
+        self.logger.setLevel(
+            logging.DEBUG if self.bot.config.DEBUG else logging.INFO)
         self.logger.addHandler(_default_handler)
         self.logger.addHandler(_error_handler)
         self.logger.addHandler(_critical_handler)
 
         assert self.name not in _loaded_services, f'Service name "{self.name}" already exist!'
         _loaded_services[self.name] = self
-
 
     @property
     def bot(self):
@@ -196,7 +197,8 @@ class Service:
         self.enable_group.discard(group_id)
         self.disable_group.add(group_id)
         _save_service_config(self)
-        self.logger.info(f'Service {self.name} is disabled at group {group_id}')
+        self.logger.info(
+            f'Service {self.name} is disabled at group {group_id}')
 
     def check_enabled(self, group_id):
         return bool((group_id in self.enable_group) or (self.enable_on_default and group_id not in self.disable_group))
@@ -237,7 +239,7 @@ class Service:
         if ctx['message_type'] == 'group':
             return bool(self.get_user_priv(ctx) >= required_priv)
         else:
-            # TODO: 处理私聊权限。暂时不允许任何私聊
+            # 不允许私聊
             return False
 
     def _check_all(self, ctx):
@@ -262,7 +264,7 @@ class Service:
 
 
     def on_message(self, event='group') -> Callable:
-        def deco(func:Callable[[NoneBot, Dict], Any]) -> Callable:
+        def deco(func: Callable[[NoneBot, Dict], Any]) -> Callable:
             @wraps(func)
             async def wrapper(ctx):
                 if self._check_all(ctx):
@@ -271,18 +273,19 @@ class Service:
                         # self.logger.info(f'Message {ctx["message_id"]} is handled by {func.__name__}.')
                     except Exception as e:
                         self.logger.exception(e)
-                        self.logger.error(f'{type(e)} occured when {func.__name__} handling message {ctx["message_id"]}.')
+                        self.logger.error(
+                            f'{type(e)} occured when {func.__name__} handling message {ctx["message_id"]}.')
                     return
             return self.bot.on_message(event)(wrapper)
         return deco
 
-
-    def on_keyword(self, keywords:Iterable, *, normalize=True, event='group') -> Callable:
+    def on_keyword(self, keywords: Iterable, *, normalize=True, event='group') -> Callable:
         if isinstance(keywords, str):
             keywords = (keywords, )
         if normalize:
             keywords = tuple(util.normalize_str(kw) for kw in keywords)
-        def deco(func:Callable[[NoneBot, Dict], Any]) -> Callable:
+
+        def deco(func: Callable[[NoneBot, Dict], Any]) -> Callable:
             @wraps(func)
             async def wrapper(ctx):
                 if self._check_all(ctx):
@@ -294,10 +297,12 @@ class Service:
                         if kw in plain_text:
                             try:
                                 await func(self.bot, ctx)
-                                self.logger.info(f'Message {ctx["message_id"]} is handled by {func.__name__}, triggered by keyword.')
+                                self.logger.info(
+                                    f'Message {ctx["message_id"]} is handled by {func.__name__}, triggered by keyword.')
                             except Exception as e:
                                 self.logger.exception(e)
-                                self.logger.error(f'{type(e)} occured when {func.__name__} handling message {ctx["message_id"]}.')
+                                self.logger.error(
+                                    f'{type(e)} occured when {func.__name__} handling message {ctx["message_id"]}.')
                             return
             return self.bot.on_message(event)(wrapper)
         return deco
@@ -306,7 +311,8 @@ class Service:
     def on_rex(self, rex, normalize=True, event='group') -> Callable:
         if isinstance(rex, str):
             rex = re.compile(rex)
-        def deco(func:Callable[[NoneBot, Dict, re.Match], Any]) -> Callable:
+
+        def deco(func: Callable[[NoneBot, Dict, re.Match], Any]) -> Callable:
             @wraps(func)
             async def wrapper(ctx):
                 if self._check_all(ctx):
@@ -319,36 +325,45 @@ class Service:
                     if match:
                         try:
                             await func(self.bot, ctx, match)
-                            self.logger.info(f'Message {ctx["message_id"]} is handled by {func.__name__}, triggered by rex.')
+                            self.logger.info(
+                                f'Message {ctx["message_id"]} is handled by {func.__name__}, triggered by rex.')
                         except Exception as e:
                             self.logger.exception(e)
-                            self.logger.error(f'{type(e)} occured when {func.__name__} handling message {ctx["message_id"]}.')
+                            self.logger.error(
+                                f'{type(e)} occured when {func.__name__} handling message {ctx["message_id"]}.')
                         return
             return self.bot.on_message(event)(wrapper)
         return deco
 
 
-    def on_command(self, name, *, only_to_me=False, deny_tip=None, **kwargs) -> Callable:
+    def on_command(self, name, *, only_to_me=False, perm=None,deny_tip=None, **kwargs) -> Callable:
         kwargs['only_to_me'] = only_to_me
-        def deco(func:Callable[[CommandSession], Any]) -> Callable:
+        perm = self.use_priv if perm is None else perm
+        def deco(func: Callable[[CommandSession], Any]) -> Callable:
             @wraps(func)
-            async def wrapper(session:CommandSession):
+            async def wrapper(session: CommandSession):
                 if session.ctx['message_type'] != 'group':
                     return
                 if not self.check_enabled(session.ctx['group_id']):
-                    self.logger.debug(f'Message {session.ctx["message_id"]} is command of a disabled service, ignored.')
+                    self.logger.debug(
+                        f'Message {session.ctx["message_id"]} is command of a disabled service, ignored.')
                     if deny_tip:
                         session.finish(deny_tip, at_sender=True)
+                    return
+                if not self.check_priv(session.ctx,perm) :
+                    session.finish("您的权限不足", at_sender=True)
                     return
                 if self._check_all(session.ctx):
                     try:
                         await func(session)
-                        self.logger.info(f'Message {session.ctx["message_id"]} is handled as command by {func.__name__}.')
+                        self.logger.info(
+                            f'Message {session.ctx["message_id"]} is handled as command by {func.__name__}.')
                     except (_PauseException, _FinishException, SwitchException) as e:
                         raise e
                     except Exception as e:
                         self.logger.exception(e)
-                        self.logger.error(f'{type(e)} occured when {func.__name__} handling message {session.ctx["message_id"]}.')
+                        self.logger.error(
+                            f'{type(e)} occured when {func.__name__} handling message {session.ctx["message_id"]}.')
                     return
             return nonebot.on_command(name, **kwargs)(wrapper)
         return deco
@@ -357,14 +372,16 @@ class Service:
     def on_natural_language(self, keywords=None, **kwargs) -> Callable:
         def deco(func) -> Callable:
             @wraps(func)
-            async def wrapper(session:nonebot.NLPSession):
+            async def wrapper(session: nonebot.NLPSession):
                 if self._check_all(session.ctx):
                     try:
                         await func(session)
-                        self.logger.info(f'Message {session.ctx["message_id"]} is handled as natural language by {func.__name__}.')
+                        self.logger.info(
+                            f'Message {session.ctx["message_id"]} is handled as natural language by {func.__name__}.')
                     except Exception as e:
                         self.logger.exception(e)
-                        self.logger.error(f'{type(e)} occured when {func.__name__} handling message {session.ctx["message_id"]}.')
+                        self.logger.error(
+                            f'{type(e)} occured when {func.__name__} handling message {session.ctx["message_id"]}.')
                     return
             return nonebot.on_natural_language(keywords, **kwargs)(wrapper)
         return deco
@@ -374,20 +391,23 @@ class Service:
         kwargs.setdefault('timezone', pytz.timezone('Asia/Shanghai'))
         kwargs.setdefault('misfire_grace_time', 60)
         kwargs.setdefault('coalesce', True)
-        def deco(func:Callable[[], Any]) -> Callable:
+
+        def deco(func: Callable[[], Any]) -> Callable:
             @wraps(func)
             async def wrapper():
                 try:
                     self.logger.info(f'Scheduled job {func.__name__} start.')
                     await func()
-                    self.logger.info(f'Scheduled job {func.__name__} completed.')
+                    self.logger.info(
+                        f'Scheduled job {func.__name__} completed.')
                 except Exception as e:
                     self.logger.exception(e)
-                    self.logger.error(f'{type(e)} occured when doing scheduled job {func.__name__}.')
+                    self.logger.error(
+                        f'{type(e)} occured when doing scheduled job {func.__name__}.')
             return nonebot.scheduler.scheduled_job(*args, **kwargs)(wrapper)
         return deco
-
-
+    
+    
     async def broadcast(self, msgs, TAG='', interval_time=0.5, randomiser=None):
         bot = self.bot
         if isinstance(msgs, str):
@@ -404,6 +424,49 @@ class Service:
             except Exception as e:
                 self.logger.exception(e)
                 self.logger.error(f"群{gid} 投递{TAG}失败 {type(e)}")
+
+
+def scheduled_job(*args, **kwargs) -> Callable:
+    kwargs.setdefault('timezone', pytz.timezone('Asia/Shanghai'))
+    kwargs.setdefault('misfire_grace_time', 60)
+    kwargs.setdefault('coalesce', True)
+
+    def deco(func: Callable[[], Any]) -> Callable:
+        @wraps(func)
+        async def wrapper():
+            try:
+                logger.info(f'Scheduled job {func.__name__} start.')
+                await func()
+                logger.info(f'Scheduled job {func.__name__} completed.')
+            except Exception as e:
+                logger.exception(e)
+                logger.error(
+                    f'{type(e)} occured when doing scheduled job {func.__name__}.')
+        return nonebot.scheduler.scheduled_job(*args, **kwargs)(wrapper)
+    return deco
+
+sulogger = logging.getLogger('sucmd')
+
+def sucmd(name, force_private=True, **kwargs) -> Callable:
+    kwargs['privileged'] = True
+    kwargs['only_to_me'] = False
+    def deco(func) -> Callable:
+        @wraps(func)
+        async def wrapper(session: CommandSession):
+            if session.event.user_id not in session.bot.config.SUPERUSERS:
+                return
+            if force_private and session.event.detail_type != 'private':
+                await session.send('> This command should only use in private session.')
+                return
+            try:
+                return await func(session)
+            except (_PauseException, _FinishException, SwitchException):
+                raise
+            except Exception as e:
+                sulogger.error(f'{type(e)} occured when {func.__name__} handling message {session.event.message_id}.')
+                sulogger.exception(e)
+        return nonebot.on_command(name, **kwargs)(wrapper)
+    return deco
 
 
 __all__ = ('Service', 'Privilege')

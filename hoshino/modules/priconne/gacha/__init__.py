@@ -7,11 +7,11 @@ except:
     import json
 
 from hoshino import util
-from hoshino import MessageSegment, Service, Privilege as Priv
+from hoshino import MessageSegment, Service, Privilege as Priv, aiorequests
 from hoshino.util import silence, concat_pic, pic2b64, DailyNumberLimiter
 
 from .gacha import Gacha
-from ..chara import Chara
+from ..chara import Chara,reload_pcrdata,reload_config,reload_data
 
 sv = Service('gacha')
 jewel_limit = DailyNumberLimiter(7500)
@@ -29,8 +29,10 @@ try:
     with open(_pool_config_file, encoding='utf8') as f:
         _group_pool = json.load(f)
 except FileNotFoundError as e:
-    sv.logger.warning('group_pool_config.json not found, will create when needed.')
+    sv.logger.warning(
+        'group_pool_config.json not found, will create when needed.')
 _group_pool = defaultdict(lambda: DEFAULT_POOL, _group_pool)
+
 
 def dump_pool_config():
     with open(_pool_config_file, 'w', encoding='utf8') as f:
@@ -43,31 +45,32 @@ gacha_10_aliases = ('抽十连', '十连', '十连！', '十连抽', '来个十�
                     '10連', '10連！', '10連抽', '來個10連', '來發10連', '來次10連', '抽個10連', '抽發10連', '抽次10連', '10連轉蛋', '轉蛋10連')
 gacha_1_aliases = ('单抽', '单抽！', '来发单抽', '来个单抽', '来次单抽', '扭蛋单抽', '单抽扭蛋',
                    '單抽', '單抽！', '來發單抽', '來個單抽', '來次單抽', '轉蛋單抽', '單抽轉蛋')
-gacha_300_aliases = ('抽一井', '来一井', '来发井', '抽发井', '天井扭蛋', '扭蛋天井', '天井轉蛋', '轉蛋天井','抽井')
+gacha_300_aliases = ('抽一井', '来一井', '来发井', '抽发井', '天井扭蛋',
+                     '扭蛋天井', '天井轉蛋', '轉蛋天井', '抽井')
 
 
-_collection_path=os.path.expanduser('~/.hoshino/collections')
+_collection_path = os.path.expanduser('~/.hoshino/collections')
 if not os.path.exists(_collection_path):
     os.mkdir(_collection_path)
 
 
-
-def load_user_collection(uid:str):
-    collectionfile=os.path.join(_collection_path,f'{uid}.json')
+def load_user_collection(uid: str):
+    collectionfile = os.path.join(_collection_path, f'{uid}.json')
     try:
         with open(collectionfile, encoding='utf8') as fp:
             ucollection = json.load(fp)
             return ucollection
     except:
-            f=open(collectionfile,'w', encoding='utf8')
-            ucollection={}
-            ucollection[uid]=[]
-            json.dump(ucollection, f, ensure_ascii=False)
-            f.close()
-            return ucollection
+        f = open(collectionfile, 'w', encoding='utf8')
+        ucollection = {}
+        ucollection[uid] = []
+        json.dump(ucollection, f, ensure_ascii=False)
+        f.close()
+        return ucollection
 
-def dump_user_collection(uid:str,ucollection):
-    with open(os.path.join(_collection_path,f'{uid}.json'), 'w', encoding='utf8') as f:
+
+def dump_user_collection(uid: str, ucollection):
+    with open(os.path.join(_collection_path, f'{uid}.json'), 'w', encoding='utf8') as f:
         json.dump(ucollection, f, ensure_ascii=False)
         f.close()
 
@@ -85,14 +88,12 @@ async def gacha_info(session):
 
 
 POOL_NAME_TIP = '请选择以下卡池\n> 选择卡池 jp\n> 选择卡池 tw\n> 选择卡池 bilibili\n> 选择卡池 mix'
-@sv.on_command('切换卡池', aliases=('选择卡池', '切換卡池', '選擇卡池'), only_to_me=False,deny_tip=GACHA_DISABLE_NOTICE)
+@sv.on_command('切换卡池', aliases=('选择卡池', '切換卡池', '選擇卡池'), only_to_me=False, deny_tip=GACHA_DISABLE_NOTICE,perm=Priv.ADMIN)
 async def set_pool(session):
-    if not sv.check_priv(session.ctx, required_priv=Priv.ADMIN):
-        session.finish('只有群管理才能切换卡池', at_sender=True)
     name = util.normalize_str(session.current_arg_text)
     if not name:
         session.finish(POOL_NAME_TIP, at_sender=True)
-    elif name in ('b', 'b服', 'bl', 'bilibili','国', '国服', 'cn'):
+    elif name in ('b', 'b服', 'bl', 'bilibili', '国', '国服', 'cn'):
         name = 'BL'
     elif name in ('台', '台服', 'tw', 'sonet'):
         name = 'TW'
@@ -120,34 +121,37 @@ async def check_tenjo_num(session):
     if not tenjo_limit.check(uid):
         await session.finish(TENJO_EXCEED_NOTICE, at_sender=True)
 
-@sv.on_command('仓库',deny_tip=GACHA_DISABLE_NOTICE,aliases=('看看仓库','我的仓库'))
+
+@sv.on_command('仓库', deny_tip=GACHA_DISABLE_NOTICE, aliases=('看看仓库', '我的仓库'))
 async def show_collection(session):
     uid = str(session.ctx['user_id'])
-    ucollection=load_user_collection(uid)
-    uset=set(ucollection[uid])
+    ucollection = load_user_collection(uid)
+    uset = set(ucollection[uid])
     uset.discard("未知角色")
-    uset=list(uset)
+    uset = list(uset)
     length = len(uset)
     if length <= 0:
-        session.finish('您的仓库为空,请多多抽卡哦~',at_sender=True)
+        session.finish('您的仓库为空,请多多抽卡哦~', at_sender=True)
     else:
-        result=list(map(lambda x:Chara.fromname(x),uset))
+        result = list(map(lambda x: Chara.fromname(x), uset))
         step = 6
         pics = []
         for i in range(0, length, step):
             j = min(length, i + step)
-            pics.append(Chara.gen_team_pic(result[i:j], star_slot_verbose=False))
+            pics.append(Chara.gen_team_pic(
+                result[i:j], star_slot_verbose=False))
         res = concat_pic(pics)
         res = pic2b64(res)
         res = MessageSegment.image(res)
-    msg=[
-    f'仅展示三星角色~',
-    f'{res}',
-    f'您共有{length}个三星角色~'
+    msg = [
+        f'仅展示三星角色~',
+        f'{res}',
+        f'您共有{length}个三星角色~'
     ]
-    ucollection[uid]=list(uset)
-    dump_user_collection(uid,ucollection)
+    ucollection[uid] = list(uset)
+    dump_user_collection(uid, ucollection)
     await session.send('\n'.join(msg), at_sender=True)
+
 
 @sv.on_command('gacha_1', deny_tip=GACHA_DISABLE_NOTICE, aliases=gacha_1_aliases, only_to_me=False)
 async def gacha_1(session):
@@ -155,19 +159,20 @@ async def gacha_1(session):
     uid = session.ctx['user_id']
     jewel_limit.increase(uid, 150)
     uid = str(session.ctx['user_id'])
-    ucollection=load_user_collection(uid)
-    uset=set(ucollection[uid])
+    ucollection = load_user_collection(uid)
+    uset = set(ucollection[uid])
     gid = str(session.ctx['group_id'])
     gacha = Gacha(_group_pool[gid])
-    chara, hiishi = gacha.gacha_one(gacha.up_prob, gacha.s3_prob, gacha.s2_prob)
+    chara, hiishi = gacha.gacha_one(
+        gacha.up_prob, gacha.s3_prob, gacha.s2_prob)
     silence_time = hiishi * 60
-    if chara.star==3:
+    if chara.star == 3:
         uset.add(chara.name)
-    ucollection[uid]=list(uset)
+    ucollection[uid] = list(uset)
     res = f'{chara.name} {"★"*chara.star}'
     if sv.bot.config.IS_CQPRO:
         res = f'{chara.icon.cqcode} {res}'
-    dump_user_collection(uid,ucollection)
+    dump_user_collection(uid, ucollection)
     await silence(session.ctx, silence_time)
     await session.send(f'素敵な仲間が増えますよ！\n{res}', at_sender=True)
 
@@ -179,16 +184,16 @@ async def gacha_10(session):
     uid = session.ctx['user_id']
     jewel_limit.increase(uid, 1500)
     uid = str(session.ctx['user_id'])
-    ucollection=load_user_collection(uid)
-    uset=set(ucollection[uid])
+    ucollection = load_user_collection(uid)
+    uset = set(ucollection[uid])
     gid = str(session.ctx['group_id'])
     gacha = Gacha(_group_pool[gid])
     result, hiishi = gacha.gacha_ten()
     silence_time = hiishi * 6 if hiishi < SUPER_LUCKY_LINE else hiishi * 60
     for c in result:
-        if 3==c.star:
+        if 3 == c.star:
             uset.add(c.name)
-    ucollection[uid]=list(uset)
+    ucollection[uid] = list(uset)
     if sv.bot.config.IS_CQPRO:
         res1 = Chara.gen_team_pic(result[:5], star_slot_verbose=False)
         res2 = Chara.gen_team_pic(result[5:], star_slot_verbose=False)
@@ -204,7 +209,7 @@ async def gacha_10(session):
         res1 = ' '.join(result[0:5])
         res2 = ' '.join(result[5:])
         res = f'{res1}\n{res2}'
-    dump_user_collection(uid,ucollection)
+    dump_user_collection(uid, ucollection)
     if hiishi >= SUPER_LUCKY_LINE:
         await session.send('恭喜海豹！おめでとうございます！')
     await session.send(f'素敵な仲間が増えますよ！\n{res}', at_sender=True)
@@ -213,13 +218,12 @@ async def gacha_10(session):
 
 @sv.on_command('gacha_300', deny_tip=GACHA_DISABLE_NOTICE, aliases=gacha_300_aliases, only_to_me=False)
 async def gacha_300(session):
-
     await check_tenjo_num(session)
     uid = session.ctx['user_id']
     tenjo_limit.increase(uid)
     uid = str(session.ctx['user_id'])
-    ucollection=load_user_collection(uid)
-    uset=set(ucollection[uid])
+    ucollection = load_user_collection(uid)
+    uset = set(ucollection[uid])
     gid = str(session.ctx['group_id'])
     gacha = Gacha(_group_pool[gid])
     result = gacha.gacha_tenjou()
@@ -228,10 +232,11 @@ async def gacha_300(session):
     s2 = len(result['s2'])
     s1 = len(result['s1'])
     res = [*(result['up']), *(result['s3'])]
+    random.shuffle(res)
     for c in res:
         uset.add(c.name)
-    ucollection[uid]=list(uset)
-    dump_user_collection(uid,ucollection)
+    ucollection[uid] = list(uset)
+    dump_user_collection(uid, ucollection)
     lenth = len(res)
     if lenth <= 0:
         res = "竟...竟然没有3★？！"
@@ -274,7 +279,7 @@ async def gacha_300(session):
         msg.append("抽井母五一气呵成！您就是欧洲人？")
     elif up >= 4:
         msg.append("记忆碎片一大堆！您是托吧？")
-    if lenth==4:
+    if lenth == 4:
         msg.append('手机QQ会出现吞图情况,请点开大图查看结果')
     await session.send('\n'.join(msg), at_sender=True)
     silence_time = (100*up + 50*(up+s3) + 10*s2 + s1) * 1
@@ -284,7 +289,7 @@ async def gacha_300(session):
 @sv.on_rex(r'^氪金$', normalize=False)
 async def kakin(bot, ctx, match):
     if ctx['user_id'] not in bot.config.SUPERUSERS:
-        await bot.send(ctx,"只有SUPERUSER才能使用氪金！")
+        await bot.send(ctx, "只有SUPERUSER才能使用氪金！")
         return
     count = 0
     for m in ctx['message']:

@@ -32,5 +32,5 @@ def get_bot() -> nonebot.NoneBot:
 
 from nonebot import NoneBot, CommandSession, MessageSegment
 
-from .service import Service, Privilege
-from .res import R
+from .service import Service, Privilege,scheduled_job,sucmd
+from .res import R,ResImg

@@ -1,4 +1,4 @@
-from hoshino import Service,R
+from hoshino import Service,R,sucmd
 from .calendar import *
 
 svjp = Service('calendar-jp', enable_on_default=False)
@@ -47,15 +47,20 @@ async def look_jp_calendar(bot, ctx, match):
     if is_all:
         await bot.send(ctx, await db_message(svjp, 'jp', 'all'), at_sender=True)
 
-@svbl.on_command('updateb',aliases=('update国服'))
-async def bl_update_ver(session):
-    res=await check_ver(svbl, 'bili')
-    if  1==res:
-        await session.send('未发现b服数据库更新')
-    elif 2==res:
-        await session.send('发现b服数据库更新')
+@sucmd('updatedb',aliases=('更新数据库'),force_private=False)
+async def forceupdatedb(session):
+    codejp=await check_ver(svjp, 'jp')
+    codebl=await check_ver(svbl, 'bili')
+    upcount=0
+    for i in [codebl,codejp]:
+        if i==0:
+            upcount+=1
+    if  (codebl==-1 and codejp==-1):
+        session.finish('检测数据库更新失败')
     else:
-        await session.send('b服数据库更新出错')
+        session.finish(f'检测数据库版本成功,{upcount}个数据库有更新')
+        
+    
 @svbl.on_rex(r'^[bB国]服(当前|预定)?日程$', normalize=True, event='group')
 async def look_bilibili_calendar(bot, ctx, match):
     is_now = match.group(1) == '当前'

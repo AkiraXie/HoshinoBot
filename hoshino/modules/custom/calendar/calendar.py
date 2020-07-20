@@ -65,11 +65,11 @@ async def check_ver(sv: Service, serid):
     except FileNotFoundError as e:
         sv.logger.warning(f'未发现{serid}数据库,将会稍后创建')
         await updateDB(sv, serid)
-        return
+        return -1
     ver_res = await aiorequests.get(ls[1])
     if ver_res.status_code != 200:
         sv.logger.warning('连接服务器失败')
-        return
+        return -1
     ver_get = await ver_res.content
     online_ver = json.loads(ver_get)
     if local_ver == online_ver:
@@ -78,7 +78,7 @@ async def check_ver(sv: Service, serid):
     else:
         sv.logger.info(f'发现{serid}数据库更新,将会稍后更新')
         await updateDB(sv, serid)
-        return 2
+        return 0
 
 
 def campaign_logout(campaign, value):

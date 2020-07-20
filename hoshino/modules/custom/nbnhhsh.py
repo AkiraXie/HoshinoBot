@@ -15,11 +15,11 @@ async def hhsh(bot, ctx, match):
         ) as resp:
             j = await resp.json()
     if len(j) == 0:
-        await bot.send(ctx, '没有结果')
+        await bot.send(ctx, f'{match.group(1)}: 没有结果')
         return
     res = j[0]
     name=res.get('name')
-    trans=res.get('trans','没有结果')
+    trans=res.get('trans',['没有结果'])
     msg = '{}: {}'.format(
         name,
         ' '.join(trans),
