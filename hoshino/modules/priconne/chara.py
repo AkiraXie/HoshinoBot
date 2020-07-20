@@ -19,7 +19,8 @@ try:
 except Exception as e:
     logger.exception(e)
 
-
+os.makedirs(R.img(f'priconne/card/').path,exist_ok=True)
+os.makedirs(R.img(f'priconne/unit/').path,exist_ok=True)
 NAME2ID = {}
 pcrdatapath=os.path.join(os.path.dirname(__file__),'priconne_data.py')
 jsonpath=os.path.join(os.path.dirname(__file__),'gacha','config.json')
@@ -45,7 +46,7 @@ def reload_data():
     importlib.reload(priconne_data)
     gen_name2id()
     logger.info('重载角色数据成功')
-    
+
 async def reload_config():
     try:
         dataget=await aiorequests.get('http://api.h-loli.cc/pcr/config.json',timeout=10)
@@ -100,7 +101,7 @@ def download_card(id_, star):
         logger.info(f'Saved to {save_path}')
     else:
         logger.error(f'Failed to download {url}. HTTP {rsp.status_code}')
-    
+
 @scheduled_job('cron',hour='01,13',minute='45',jitter=25)
 async def updatedata():
     await reload_pcrdata()
@@ -162,7 +163,7 @@ class Chara:
             res = R.img(f'priconne/unit/icon_unit_{self.id}31.png')
         if not res.exist:
             res = R.img(f'priconne/unit/icon_unit_{self.id}11.png')
-        if not res.exist:   
+        if not res.exist:
             download_chara_icon(self.id, 6)
             download_chara_icon(self.id, 3)
             download_chara_icon(self.id, 1)
@@ -174,8 +175,8 @@ class Chara:
         if not res.exist:#should never reach here
             res = R.img(f'priconne/unit/icon_unit_{UNKNOWN}31.png')
         return res
-    
-    
+
+
     @property
     def card(self):
         if self.star==0 or self.star==6:
