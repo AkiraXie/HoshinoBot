@@ -1,26 +1,19 @@
 #该色图功能为取自setu.db，该db由yoshino提供，不保证符合您的系统
 from hoshino import Service, Privilege as Priv
-import base64
-import sqlite3
 import os
-import random
 from hoshino.util import FreqLimiter, DailyNumberLimiter
 sv = Service('ysetu', visible=False, enable_on_default=False,
              manage_priv=Priv.SUPERUSER)
 _nlmt = DailyNumberLimiter(10)
 _flmt = FreqLimiter(15)
 
-db = sqlite3.connect(os.path.join(os.path.dirname(__file__), 'setu.db'))
 
 
 def getsetu():
-    setuid = random.randint(1, 4624)
-    a = db.execute(f'select url from setu where id={setuid}')
-    i = a.fetchall()[0][0]
-    return f'[CQ:image,cache=0,url={i}]'
+    return f'[CQ:image,cache=0,url=https://api.loli.com.se/]'
 
 
-@sv.on_rex(r'^(不够[涩瑟色]|[涩瑟色]图|来一?[点份张].*[涩瑟色]|再来[点份张]|看过了|铜)', normalize=True)
+@sv.on_rex(r'^(不够[涩瑟色]|[涩瑟色]图|来一?[点份张].*[涩瑟色]|再来[点份张]|看过了)', normalize=True)
 async def pushsetu(bot, ctx, match):
     uid = ctx['user_id']
     if not _nlmt.check(uid):

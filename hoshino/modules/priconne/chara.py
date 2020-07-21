@@ -6,7 +6,7 @@ from PIL import Image
 import requests
 import zhconv
 
-from . import priconne_data
+from . import priconne_data,pcrdatapath,jsonpath
 from hoshino import scheduled_job,aiorequests,sucmd,logger,R, ResImg
 
 
@@ -22,8 +22,7 @@ except Exception as e:
 os.makedirs(R.img(f'priconne/card/').path,exist_ok=True)
 os.makedirs(R.img(f'priconne/unit/').path,exist_ok=True)
 NAME2ID = {}
-pcrdatapath=os.path.join(os.path.dirname(__file__),'priconne_data.py')
-jsonpath=os.path.join(os.path.dirname(__file__),'gacha','config.json')
+
 
 async def reload_pcrdata():
     try:
