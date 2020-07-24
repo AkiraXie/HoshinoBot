@@ -23,7 +23,7 @@ os.makedirs(R.img(f'priconne/card/').path,exist_ok=True)
 os.makedirs(R.img(f'priconne/unit/').path,exist_ok=True)
 NAME2ID = {}
 
-
+#更新数据，api由111234567890提供，十分感谢！
 async def reload_pcrdata():
     try:
         dataget=await aiorequests.get('http://api.h-loli.cc/pcr/priconne_data.py',timeout=10)
@@ -101,7 +101,7 @@ def download_card(id_, star):
     else:
         logger.error(f'Failed to download {url}. HTTP {rsp.status_code}')
 
-@scheduled_job('cron',hour='01,13',minute='45',jitter=25)
+@scheduled_job('cron',hour='0,12',minute='40')
 async def updatedata():
     await reload_pcrdata()
     await reload_config()

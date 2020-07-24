@@ -5,8 +5,13 @@
 
 ## 特别注意
 
-此HoshinoBot基于[Ice-Cirno](https://github.com/Ice-Cirno)的HoshinoBot V1,并进行了些许修改和定制化。与现在的HoshinoBot V2有一定的差异，如需搭建原版HoshinoBot请查阅[这里](https://github.com/Ice-Cirno/HoshinoBot)
+此HoshinoBot基于[Ice-Cirno](https://github.com/Ice-Cirno)的HoshinoBot V1,并进行了一定的定制化，添加了一些插件。与现在的HoshinoBot V2有一定的差异，如需搭建原版HoshinoBot请查阅[这里](https://github.com/Ice-Cirno/HoshinoBot)
+另外,本Bot的卡池和角色数据只有样例，实际使用的卡池和角色数据来源于api,并加入了自动更新卡池和角色数据的功能,具体请查阅[这里](hoshino/modules/priconne/chara.py).这是与原版HoshinoBot最大的不同之处，请知悉。
 
+
+## Thanks
+[111234567890](https://github.com/111234567890)
+[tngsohack](https://github.com/kkbllt)
 
 
 
@@ -117,7 +122,7 @@ HoshinoBot 的功能繁多，各群可根据自己的需要进行开关控制，
     py -3.8 run.py
     ```
 
-    私聊机器人发送`在？`，若机器人有回复，恭喜您！您已经成功搭建起HoshinoBot了。
+    私聊机器人发送`在？`，若机器人有回复，恭喜您！您已经成功搭建起HoshinoBot了。之后可以发`更新数据`来获取角色数据和卡池配置，方便进行之后的操作。  
 
     注意，此时您的机器人功能还不完全，部分功能可能无法正常工作。若希望您的机器人可以发送图片，或使用其他进阶功能，请参考本章**更进一步**的对应小节。
 
