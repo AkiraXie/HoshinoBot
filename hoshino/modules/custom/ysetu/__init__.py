@@ -1,7 +1,6 @@
 #该色图功能取自tngsohack的色图api，十分感谢
-from hoshino import Service, Privilege as Priv
+from hoshino import Service, Privilege as Priv,aiorequests
 import os
-import requests
 import base64
 import random
 from hoshino.util import FreqLimiter, DailyNumberLimiter
@@ -10,11 +9,11 @@ _nlmt = DailyNumberLimiter(15)
 _flmt = FreqLimiter(15)
 
 
-def getsetu():
-    urls=['https://api.photo.lolicon.plus/stv2/','http://www.dmoe.cc/random.php','https://s0.xinger.ink/acgimg/acgurl.php','https://img.ijglb.com/api.php?action=pc']
+async def getsetu():
+    urls=['https://api.photo.lolicon.plus/stv2/']#'https://img.ijglb.com/api.php?action=pc']
     sturl=random.choice(urls)
-    resp=requests.get(sturl,timeout=5)
-    img=base64.b64encode(resp.content).decode()
+    resp=await aiorequests.get(sturl,timeout=5)
+    img=base64.b64encode(await resp.content).decode()
     return f'[CQ:image,cache=0,file=base64://{img}]'
 
 
@@ -27,7 +26,7 @@ async def pushsetu(session):
         session.finish('您冲得太快了，请稍候再冲', at_sender=True)
     _flmt.start_cd(uid)
     try:
-        msg = getsetu()
+        msg = await getsetu()
         await session.send(msg)
         _nlmt.increase(uid)
     except:
