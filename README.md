@@ -5,7 +5,9 @@
 
 ## 特别注意
 
-此HoshinoBot基于[Ice-Cirno](https://github.com/Ice-Cirno)的HoshinoBot V1,并进行了一定的定制化，添加了一些插件。与现在的HoshinoBot V2有一定的差异，如需搭建原版HoshinoBot请查阅[这里](https://github.com/Ice-Cirno/HoshinoBot)
+此HoshinoBot基于[Ice-Cirno](https://github.com/Ice-Cirno)的HoshinoBot V1,并进行了一定的定制化，添加了一些插件。与现在的HoshinoBot V2有一定的差异，如需搭建原版HoshinoBot请查阅[这里](https://github.com/Ice-Cirno/HoshinoBot)。
+
+
 另外,本Bot的卡池和角色数据只有样例，实际使用的卡池和角色数据来源于api,并加入了自动更新卡池和角色数据的功能,具体请查阅[这里](hoshino/modules/priconne/chara.py).这是与原版HoshinoBot最大的不同之处，请知悉。
 
 

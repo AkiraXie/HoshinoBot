@@ -94,7 +94,7 @@ class Gacha(object):
             c, y = self.gacha_one(up, s3, s2 + s1, 0)    # 保底第10抽
             if 100 == y:
                 result['s3'].append(c)
-                first_up_pos = min(i*10+i,first_up_pos)
+                first_up_pos = min((i+1)*10,first_up_pos)
                 upnum+=1
             elif 50 == y:
                 result['s3'].append(c)
@@ -103,6 +103,6 @@ class Gacha(object):
             elif 1==y:
                 result['s1'].append(c)
             else:
-                pass 
+                pass # should never reach here
         result['first_up_pos'] = first_up_pos
         return result,upnum

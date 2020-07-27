@@ -54,8 +54,9 @@ async def _arena_query(session:CommandSession, region:int):
         session.finish('请输入防守方角色，用空格隔开', at_sender=True)
     if 5 < len(argv):
         session.finish('编队不能多于5名角色', at_sender=True)
-
     defen = [ Chara.name2id(name) for name in argv ]
+    if len(defen) <5:
+        session.finish('由于pcrdfans.com的限制，编队必须为5个角色', at_sender=True)
     for i, id_ in enumerate(defen):
         if Chara.UNKNOWN == id_:
             session.finish(f'编队中含未知角色"{argv[i]}"', at_sender=True)
@@ -63,7 +64,6 @@ async def _arena_query(session:CommandSession, region:int):
         await session.finish('编队中出现重复角色', at_sender=True)
     if 1004 in defen:
         await session.send('\n⚠️您正在查询普通版炸弹人\n※万圣版可用万圣炸弹人/瓜炸等别称', at_sender=True)
-
     # 执行查询
     sv.logger.info('Doing query...')
     res = await arena.do_query(defen, uid, region)
