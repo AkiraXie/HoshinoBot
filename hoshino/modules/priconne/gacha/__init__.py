@@ -75,7 +75,7 @@ def dump_user_collection(uid: str, ucollection):
         f.close()
 
 
-@sv.on_command('卡池资讯', deny_tip=GACHA_DISABLE_NOTICE, aliases=('查看卡池', '看看卡池', '康康卡池', '卡池資訊', '看看up', '看看UP'), only_to_me=False)
+@sv.on_command('卡池资讯', deny_tip=GACHA_DISABLE_NOTICE, aliases=('查看卡池', '看看卡池', '康康卡池', '卡池資訊', '看看up', 'kkup','看看UP'), only_to_me=False)
 async def gacha_info(session):
     gid = str(session.ctx['group_id'])
     gacha = Gacha(_group_pool[gid])

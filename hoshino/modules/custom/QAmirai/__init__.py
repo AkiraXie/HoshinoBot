@@ -1,15 +1,37 @@
 import time
-
-
+import re
+import hashlib
+import os
+import requests
 from .data import Question
-from hoshino import Service, Privilege as Priv, R, CommandSession
+from hoshino import Service, Privilege as Priv, CommandSession
 answers = {}
 sv = Service('QA')
+qa_path = os.path.expanduser('~/.hoshino/QA')
+if not os.path.exists(qa_path):
+    os.mkdir(qa_path)
 
 
 def union(group_id, user_id):
     return (group_id << 32) | user_id
 
+
+def cqimage(a):
+    if r'[CQ:image,' in a:
+        url = re.search(r'url=([\S]*)\]', a).group(1)
+        imgname = hashlib.md5(url.encode('utf8')).hexdigest()
+        imgget = requests.get(url)
+        imgcon = imgget.content
+        if b'GIF' in imgcon:
+            imgpath = os.path.join(qa_path, f'{imgname}.gif')
+        else:
+            imgpath = os.path.join(qa_path, f'{imgname}.png')
+        with open(imgpath, 'wb') as f:
+            f.write(imgcon)
+            f.close()
+        b=f'[CQ:image,file=file:///{os.path.abspath(imgpath)}]'
+        a=re.sub(r'\[CQ:image(\S*)\]',b,a)
+    return a
 
 # recovery from database
 for qu in Question.select():
@@ -28,9 +50,15 @@ async def setqa(bot, context):
             return
         q, a = msg
         if 'granbluefantasy.jp' in q or 'granbluefantasy.jp' in a:
+            await bot.send(context, '骑空士还挺会玩儿？爬！\n', at_sender=True)
             return
         if q not in answers:
             answers[q] = {}
+        try:
+            a = cqimage(a)
+        else:
+            await bot.send(context, '设置图片失败，请再次设置', at_sender=False)
+            return
         answers[q][union(context['group_id'], context['user_id'])] = a
         Question.replace(
             quest=q,
@@ -49,6 +77,7 @@ async def setqa(bot, context):
         if len(msg) == 1:
             await bot.send(context, f'发送“{message[:3]}xxx你答yyy”我才能记住', at_sender=False)
         q, a = msg
+        a = await cqimage(a)
         if q not in answers:
             answers[q] = {}
         answers[q][union(context['group_id'], 1)] = a
@@ -96,7 +125,7 @@ async def setqa(bot, context):
             await bot.send(context, f'我不再回答"{a}"了', at_sender=False)
 
 
-@sv.on_command('查找QA', aliases=('查询问题', '查找问题', '看看QA', '看看qa', '看看问题'))
+@sv.on_command('查QA', aliases=('看看我问'))
 async def lookqa(session: CommandSession):
     uid = session.ctx['user_id']
     gid = session.ctx['group_id']
@@ -108,10 +137,10 @@ async def lookqa(session: CommandSession):
     await session.send('/'.join(msg), at_sender=True)
 
 
-@sv.on_command('查看有人问', aliases=('看看有人问', '看看大家问', '查找有人问'))
+@sv.on_command('查有人问', aliases=('看看有人问', '看看大家问', '查找有人问'))
 async def lookgqa(session: CommandSession):
     if not sv.check_priv(session.ctx, required_priv=Priv.ADMIN):
-        session.finish('只有管理员才可以查看"有人问"')
+        session.finish('只有管理员才可以查看有人问')
     gid = session.ctx['group_id']
     result = Question.select(Question.quest).where(
         Question.rep_group == gid, Question.rep_member == 1)
@@ -127,11 +156,9 @@ async def answer(bot, context):
     if ans:
         a = ans.get(union(context['group_id'], context['user_id']))
         if a:
-            if 'granbluefantasy.jp' in a:
-                return
-            await bot.send(context, f'{a}', at_sender=False)
+            await bot.send(context, a, at_sender=False)
             return
         b = ans.get(union(context['group_id'], 1))
         if b:
-            await bot.send(context, f'{b}', at_sender=False)
+            await bot.send(context, a, at_sender=False)
             return

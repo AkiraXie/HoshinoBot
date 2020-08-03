@@ -1,0 +1,3 @@
+该插件改自QA，用于mirai-HoshinoBot平台，可以在答案中设置静态或动态图片
+放入到HoshinoBot的任意一个module下即可
+该插件与QA尽量不要共存
