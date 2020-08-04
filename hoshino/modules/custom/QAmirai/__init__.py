@@ -6,32 +6,12 @@ import requests
 from .data import Question
 from hoshino import Service, Privilege as Priv, CommandSession
 answers = {}
-sv = Service('QA')
-qa_path = os.path.expanduser('~/.hoshino/QA')
-if not os.path.exists(qa_path):
-    os.mkdir(qa_path)
+sv = Service('QA-mirai')
+
 
 
 def union(group_id, user_id):
     return (group_id << 32) | user_id
-
-
-def cqimage(a):
-    if r'[CQ:image,' in a:
-        url = re.search(r'url=([\S]*)\]', a).group(1)
-        imgname = hashlib.md5(url.encode('utf8')).hexdigest()
-        imgget = requests.get(url)
-        imgcon = imgget.content
-        if b'GIF' in imgcon:
-            imgpath = os.path.join(qa_path, f'{imgname}.gif')
-        else:
-            imgpath = os.path.join(qa_path, f'{imgname}.png')
-        with open(imgpath, 'wb') as f:
-            f.write(imgcon)
-            f.close()
-        b=f'[CQ:image,file=file:///{os.path.abspath(imgpath)}]'
-        a=re.sub(r'\[CQ:image(\S*)\]',b,a)
-    return a
 
 # recovery from database
 for qu in Question.select():
@@ -54,11 +34,6 @@ async def setqa(bot, context):
             return
         if q not in answers:
             answers[q] = {}
-        try:
-            a = cqimage(a)
-        else:
-            await bot.send(context, '设置图片失败，请再次设置', at_sender=False)
-            return
         answers[q][union(context['group_id'], context['user_id'])] = a
         Question.replace(
             quest=q,
@@ -77,7 +52,6 @@ async def setqa(bot, context):
         if len(msg) == 1:
             await bot.send(context, f'发送“{message[:3]}xxx你答yyy”我才能记住', at_sender=False)
         q, a = msg
-        a = await cqimage(a)
         if q not in answers:
             answers[q] = {}
         answers[q][union(context['group_id'], 1)] = a
@@ -160,5 +134,5 @@ async def answer(bot, context):
             return
         b = ans.get(union(context['group_id'], 1))
         if b:
-            await bot.send(context, a, at_sender=False)
+            await bot.send(context, b, at_sender=False)
             return
