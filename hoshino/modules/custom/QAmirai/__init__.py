@@ -114,7 +114,7 @@ async def lookqa(session: CommandSession):
 @sv.on_command('查有人问', aliases=('看看有人问', '看看大家问', '查找有人问'))
 async def lookgqa(session: CommandSession):
     if not sv.check_priv(session.ctx, required_priv=Priv.ADMIN):
-        session.finish('只有管理员才可以查看有人问')
+        session.finish('只有管理员才可以查看"有人问"')
     gid = session.ctx['group_id']
     result = Question.select(Question.quest).where(
         Question.rep_group == gid, Question.rep_member == 1)

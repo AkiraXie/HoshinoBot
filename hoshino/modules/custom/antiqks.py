@@ -1,7 +1,7 @@
 import aiohttp
 from hoshino import R, Service,Privilege as Priv
 
-sv = Service('antiqks',visible=False,manage_priv=Priv.SUPERUSER)
+sv = Service('antiqks',visible=False,manage_priv=Priv.SUPERUSER,enable_on_default=True)
 
 qks_url = ["granbluefantasy.jp"]
 qksimg = R.img('qksimg.jpg').cqcode
@@ -12,8 +12,8 @@ async def qks_keyword(bot, ctx):
     msg = f'?¿\n{qksimg}'
     await bot.send(ctx, msg, at_sender=True)
 
-
-@sv.on_rex(r'[a-z0-9A-Z\.]{4,12}\/[a-zA-Z0-9]+', normalize=False, event='group')
+#影响性能，还有潜在的安全风险
+#@sv.on_rex(r'[a-z0-9A-Z\.]{4,12}\/[a-zA-Z0-9]+', normalize=False, event='group')
 async def qks_rex(bot, ctx, match):
     msg = f'?¿?¿?¿\n{qksimg}'
     res = 'http://'+match.group(0)

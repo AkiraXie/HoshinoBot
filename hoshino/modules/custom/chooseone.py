@@ -14,13 +14,17 @@ async def chooseone(bot, ctx):
         if len(msg) == 1:
             await bot.send(ctx, '请发送“选择aa还是bb”')
             return
-        choices = msg
+        for i in msg:
+            if len(i)==0:
+                await bot.send(ctx, '不支持选择空字符')
+                return
+        choices=msg
         choices.append('"我全都要"')
         final_choice = random.choice(choices)
         reply = '您的选项是：'
         num = 1
-        for i in msg[:-1]:
+        for i in choices[:-2]:
             reply += f'\n{num}、 {i}'
             num = num+1
-        reply += f'\n您最终的决定是：{final_choice}'
+        reply += f'\n最终的决定是：{final_choice}'
         await bot.send(ctx, reply, at_sender=True)
