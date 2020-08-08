@@ -1,15 +1,17 @@
 # HoshinoBot 
 
- **Forked from [Ice-Cirno/HoshinoBot](https://github.com/Ice-Cirno/HoshinoBot)  and customized by AkiraXie**
+**Forked from [Ice-Cirno/HoshinoBot](https://github.com/Ice-Cirno/HoshinoBot)  and customized by AkiraXie**
 
 
 ## 特别注意
 
 此HoshinoBot基于[Ice-Cirno](https://github.com/Ice-Cirno)的HoshinoBot V1,并进行了一定的定制化，添加了一些插件。与现在的HoshinoBot V2有一定的差异，如需搭建原版HoshinoBot请查阅[这里](https://github.com/Ice-Cirno/HoshinoBot)。
 
-本README着重于定制化功能的介绍，原版功能和如何搭建恕不再赘述。
+本文着重于定制化功能的介绍，原版功能和如何搭建可参阅原版V1的[教程](README-v1.md)，本文恕不再赘述。
 
-本bot需要安装额外的依赖，可以通过`` pip3 install -r requirements.txt``安装。
+本bot需要安装额外的依赖，可以通过``pip3 install -r requirements.txt``安装。
+
+本bot需要静态资源,可以从[这里](https://pan.akiraxie.me/A:/res.zip)下载。
 
 
 ## 功能介绍
@@ -87,7 +89,7 @@ B服和日服对应两个服务，想要查看或者推送日程需要打开相�
 | --------------- | ------------------------------------------------------------ |
 | 更新(卡池\数据) | (**权限**：主人 ，**自动**)从指定api拉取并更新卡池配置和角色数据 |
 
-#### 仓库(gahca)
+#### 仓库(gacha)
 
 | 命令 | 介绍         |
 | ---- | ------------ |
@@ -101,6 +103,8 @@ B服和日服对应两个服务，想要查看或者推送日程需要打开相�
   其实已经写好了不过现在mirai还不支持获取cookie，就放在待办里面
 
 - RSS推送
+
+- Saucenao识图
 
 
 ## Thanks
