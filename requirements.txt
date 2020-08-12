@@ -13,3 +13,4 @@ beautifulsoup4>=4.9.0
 brotli
 peewee
 aiohttp
+saucenao_api
