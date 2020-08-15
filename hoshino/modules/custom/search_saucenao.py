@@ -22,6 +22,6 @@ async def searchpic(session):
         reply.append('标题:「'+best.title+'」')
         reply.append('作者:「'+best.author+'」')
         reply.append(f'[CQ:image,cache=0,file={best.thumbnail}]')
-        reply.append('图片地址'+best.url)
+        reply.append('图片地址:'+best.url)
         await session.send('\n'.join(reply))
         count=count+1
