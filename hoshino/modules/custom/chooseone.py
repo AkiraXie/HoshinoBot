@@ -23,7 +23,7 @@ async def chooseone(bot, ctx):
         final_choice = random.choice(choices)
         reply = '您的选项是：'
         num = 1
-        for i in choices[:-2]:
+        for i in choices[:-1]:
             reply += f'\n{num}、 {i}'
             num = num+1
         reply += f'\n最终的决定是：{final_choice}'

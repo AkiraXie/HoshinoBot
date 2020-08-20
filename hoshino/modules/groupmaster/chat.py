@@ -9,7 +9,7 @@ from hoshino.service import Service, Privilege as Priv
 # basic function for debug, not included in Service('chat')
 @on_command('zai?', aliases=('在?', '在？', '在吗', '在么？', '在嘛', '在嘛？'))
 async def say_hello(session):
-    await session.send('はい！私はいつも貴方の側にいますよ！')
+    await session.send('馬鹿！あほ！！変態！！！')
 
 sv = Service('chat', manage_priv=Priv.SUPERUSER, visible=False)
 
