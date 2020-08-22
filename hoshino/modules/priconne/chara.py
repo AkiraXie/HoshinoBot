@@ -2,7 +2,7 @@ import os
 import base64
 import importlib
 from io import BytesIO
-from PIL import Image
+from PIL import Image,ImageDraw,ImageFont
 import requests
 import zhconv
 
@@ -18,7 +18,7 @@ try:
     unknown_chara_icon = R.img('priconne/unit/icon_unit_100031.png').open()
 except Exception as e:
     logger.exception(e)
-
+os.makedirs(R.img(f'priconne/gadget/').path,exist_ok=True)
 os.makedirs(R.img(f'priconne/card/').path,exist_ok=True)
 os.makedirs(R.img(f'priconne/unit/').path,exist_ok=True)
 NAME2ID = {}
@@ -249,15 +249,30 @@ class Chara:
 
 
     @staticmethod
-    def gen_team_pic(team, size=64, star_slot_verbose=True):
+    def gen_team_pic(team, size=64, star_slot_verbose=True,text=None):
         num = len(team)
-        des = Image.new('RGBA', (num*size, size), (255, 255, 255, 255))
+        if isinstance(text,str):
+            des = Image.new('RGBA', (num*size+70, size), (255, 255, 255, 255))
+            tfont = ImageFont.truetype(R.img('priconne/gadget/FZY3K.TTF').path,16)
+            timg = Image.new('RGBA', (70, 64) ,(255, 255, 255, 255))
+            dra = ImageDraw.Draw(timg)
+            dra = dra.text((3,3), text, font=tfont,fill="#000000")
+            img = Image.new('RGBA', (20, 40), (255, 255, 255, 255))
+            like = Image.open(R.img('priconne/gadget/like.png').path)
+            dislike = Image.open(R.img('priconne/gadget/dislike.png').path)
+            dislike.thumbnail((20, 20))
+            like.thumbnail((20, 20))
+            img.paste(like, (0, 0), like)
+            img.paste(dislike, (0, 20), dislike)
+            des.paste(timg, (num * size, 0), timg)
+            des.paste(img, (num * size, 24), img)
+        else:
+            des = Image.new('RGBA', (num*size, size), (255, 255, 255, 255))
         for i, chara in enumerate(team):
             src = chara.gen_icon_img(size, star_slot_verbose)
             des.paste(src, (i * size, 0), src)
         return des
-
-
+    
     @staticmethod
     def name2id(name):
         name = normname(name)

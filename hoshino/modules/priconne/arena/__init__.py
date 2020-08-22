@@ -79,7 +79,11 @@ async def _arena_query(session:CommandSession, region:int):
     # 发送回复
     if get_bot().config.IS_CQPRO:
         sv.logger.info('Arena generating picture...')
-        atk_team = [ Chara.gen_team_pic(entry['atk']) for entry in res ]
+        atk_team = [ Chara.gen_team_pic(team=entry['atk'],text="\n".join([
+      f"{entry['qkey']}",
+      f"赞 {entry['up']}+{entry['my_up']}" if entry['my_up'] else f"赞 {entry['up']}",
+      f"踩 {entry['down']}+{entry['my_down']}" if entry['my_down'] else f"踩 {entry['down']}",
+  ])) for entry in res ]
         atk_team = concat_pic(atk_team)
         atk_team = pic2b64(atk_team)
         atk_team = str(MessageSegment.image(atk_team))
@@ -87,11 +91,6 @@ async def _arena_query(session:CommandSession, region:int):
     else:
         atk_team = '\n'.join(map(lambda entry: ' '.join(map(lambda x: f"{x.name}{x.star if x.star else ''}{'专' if x.equip else ''}" , entry['atk'])) , res))
 
-    details = [ " ".join([
-        f"赞{e['up']}+{e['my_up']}" if e['my_up'] else f"赞{e['up']}",
-        f"踩{e['down']}+{e['my_down']}" if e['my_down'] else f"踩{e['down']}",
-        e['qkey']
-    ]) for e in res ]
 
     defen = [ Chara.fromid(x).name for x in defen ]
     defen = f"防守方【{' '.join(defen)}】"
@@ -101,8 +100,6 @@ async def _arena_query(session:CommandSession, region:int):
         defen,
         f'已为骑士{at}查询到以下进攻方案：',
         str(atk_team),
-        f'作业评价：',
-        *details,
         '※发送"点赞/点踩"可进行评价',
         '※手机QQ可能会出现吞图情况，请点开大图查看',
     ]
