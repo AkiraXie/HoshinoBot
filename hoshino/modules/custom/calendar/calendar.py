@@ -24,6 +24,13 @@ jp_verurl = 'https://redive.estertion.win/last_version_jp.json'
 jp_db = os.path.join(_resource_path, 'redive_jp.db')
 jp_ver = os.path.join(_resource_path, 'jp_ver.json')
 jplist = [jp_url, jp_verurl, jp_db, jp_ver]
+# tw(sonet f**k you!)
+# 台服api由tngsohack提供，感谢！
+tw_url= 'https://api.redive.lolikon.icu/br/redive_tw.db.br'
+tw_verurl='https://api.redive.lolikon.icu//json/lastver_tw.json'
+tw_db = os.path.join(_resource_path, 'redive_tw.db')
+tw_ver = os.path.join(_resource_path, 'tw_ver.json')
+twlist = [tw_url, tw_verurl, tw_db, tw_ver]
 
 
 async def updateDB(sv: Service, serid):
@@ -31,6 +38,8 @@ async def updateDB(sv: Service, serid):
         ls = jplist
     if serid == 'bili':
         ls = bililist
+    if serid == 'tw':
+        ls=twlist
     ver_res =await aiorequests.get(ls[1])
     if ver_res.status_code != 200:
         sv.logger.warning('连接服务器失败')
@@ -59,13 +68,15 @@ async def check_ver(sv: Service, serid):
         ls = jplist
     if serid == 'bili':
         ls = bililist
+    if serid == 'tw':
+        ls = list(twlist)
     try:
         with open(ls[3], encoding='utf8') as vfile:
             local_ver = json.load(vfile)
     except FileNotFoundError as e:
         sv.logger.warning(f'未发现{serid}数据库,将会稍后创建')
         await updateDB(sv, serid)
-        return -1
+        return 0
     ver_res = await aiorequests.get(ls[1])
     if ver_res.status_code != 200:
         sv.logger.warning('连接服务器失败')
@@ -96,6 +107,9 @@ async def db_message(sv, serid, tense='all', lastday=7):
     if serid == 'jp':
         database_path = jplist[2]
         fmsg='日服日程'
+    if serid == 'tw':
+        database_path = twlist[2]
+        fmsg='台服日程'
     if not os.path.exists(database_path):
         await updateDB(sv, serid)
     db = sqlite3.connect(database_path)
