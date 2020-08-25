@@ -252,7 +252,7 @@ class Chara:
     def gen_team_pic(team, size=64, star_slot_verbose=True,text=None):
         num = len(team)
         if isinstance(text,str):
-            des = Image.new('RGBA', (num*size+72, size), (255, 255, 255, 255))
+            des = Image.new('RGBA', (num*size+77, size), (255, 255, 255, 255))
             tfont = ImageFont.truetype(R.img('priconne/gadget/FZY3K.TTF').path,16)
             timg = Image.new('RGBA', (72, 64) ,(255, 255, 255, 255))
             dra = ImageDraw.Draw(timg)

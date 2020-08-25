@@ -1,6 +1,7 @@
 import json
 import re
 import random
+import os
 
 from hoshino import Service,aiorequests,R
 
@@ -11,14 +12,16 @@ async def longwang(session):
     gid = session.ctx['group_id']
     dragon_king=await session.bot.get_group_honor_info(group_id=gid,type='talkative')
     dragon_king=dragon_king['current_talkative']['user_id']
+    longwanglist=list()
+    longwangmelist=list()
+    for lw in os.listdir(R.img('longwang/').path):
+        if lw.startswith('longwangme'):
+            longwangmelist.append(lw)
+        else:
+            longwanglist.append(lw)
+    longwangme=R.img('longwang/',random.choice(longwangmelist)).cqcode
+    longwang=R.img('longwang/',random.choice(longwanglist)).cqcode
     if dragon_king==session.ctx['self_id']:
-        longwangme=R.img('longwangme.jpg').cqcode
         session.finish(f'{longwangme}')
-    n = random.randint(0, 6)
-    if 0==n:
-        img="龙王出来喷水"
-    elif 6==n:
-        img="龙王出来挨透"
-    else:
-        img = R.img('longwang{}.jpg'.format(n)).cqcode
-    session.finish(f'[CQ:at,qq={dragon_king}]\n{img}')
+    reply=random.choice([f'{longwang}','龙王出来挨透','龙王出来喷水'])
+    session.finish(f'[CQ:at,qq={dragon_king}]\n{reply}')
