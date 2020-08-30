@@ -12,7 +12,6 @@ async def chooseone(bot, ctx):
     if message.startswith('选择'):
         msg = message[2:].split('还是')
         if len(msg) == 1:
-            await bot.send(ctx, '请发送“选择aa还是bb”')
             return
         for i in msg:
             if len(i)==0:

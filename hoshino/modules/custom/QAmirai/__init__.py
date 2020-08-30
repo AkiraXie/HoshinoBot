@@ -26,7 +26,6 @@ async def setqa(bot, context):
     if message.startswith('我问'):
         msg = message[2:].split('你答', 1)
         if len(msg) == 1:
-            await bot.send(context, '发送“我问xxx你答yyy”我才能记住', at_sender=False)
             return
         q, a = msg
         if 'granbluefantasy.jp' in q or 'granbluefantasy.jp' in a:
@@ -50,7 +49,7 @@ async def setqa(bot, context):
             return
         msg = message[3:].split('你答', 1)
         if len(msg) == 1:
-            await bot.send(context, f'发送“{message[:3]}xxx你答yyy”我才能记住', at_sender=False)
+            return
         q, a = msg
         if q not in answers:
             answers[q] = {}
@@ -81,7 +80,9 @@ async def setqa(bot, context):
             if not ans:
                 del answers[q]
             await bot.send(context, f'我不再回答"{a}"了', at_sender=False)
-
+    elif message.startswith('删除有人问') or message.startswith('删除大家问'):
+        q = context['raw_message'][5:]
+        ans = answers.get(q)
         if not sv.check_priv(context, required_priv=Priv.ADMIN):
             await bot.send(context, f'只有管理员才能删除"有人问"的问题', at_sender=False)
             return
