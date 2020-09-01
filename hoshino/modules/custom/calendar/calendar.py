@@ -11,35 +11,32 @@ from .campaign import parse_campaign
 _resource_path = os.path.expanduser('~/.hoshino')
 
 
-# 开辟一个数组来储存地址，依次是服务器数据库，服务器版本Json，本地数据库，本地版本Json
+# 开辟一个数组来储存地址，依次是服务器数据库，服务器版本Json，本地数据库，本地版本Json,消息提示词
 # bilibili
 bili_url = 'https://redive.estertion.win/db/redive_cn.db.br'
 bili_verurl = 'https://redive.estertion.win/last_version_cn.json'
 bili_db = os.path.join(_resource_path, 'redive_bili.db')
 bili_ver = os.path.join(_resource_path, 'bili_ver.json')
-bililist = [bili_url, bili_verurl, bili_db, bili_ver]
+bililist = [bili_url, bili_verurl, bili_db, bili_ver,"b服日程"]
 # jp
 jp_url = 'https://redive.estertion.win/db/redive_jp.db.br'
 jp_verurl = 'https://redive.estertion.win/last_version_jp.json'
 jp_db = os.path.join(_resource_path, 'redive_jp.db')
 jp_ver = os.path.join(_resource_path, 'jp_ver.json')
-jplist = [jp_url, jp_verurl, jp_db, jp_ver]
+jplist = [jp_url, jp_verurl, jp_db, jp_ver,"日服日程"]
 # tw(sonet f**k you!)
 # 台服api由tngsohack提供，感谢！
 tw_url= 'https://api.redive.lolikon.icu/br/redive_tw.db.br'
 tw_verurl='https://api.redive.lolikon.icu//json/lastver_tw.json'
 tw_db = os.path.join(_resource_path, 'redive_tw.db')
 tw_ver = os.path.join(_resource_path, 'tw_ver.json')
-twlist = [tw_url, tw_verurl, tw_db, tw_ver]
+twlist = [tw_url, tw_verurl, tw_db, tw_ver,"台服日程"]
+
+regiondic={'bili':bililist,'tw':twlist,'jp':jplist}
 
 
-async def updateDB(sv: Service, serid):
-    if serid == 'jp':
-        ls = jplist
-    if serid == 'bili':
-        ls = bililist
-    if serid == 'tw':
-        ls=twlist
+async def updateDB(sv: Service, serid:str):
+    ls=regiondic[serid]
     ver_res =await aiorequests.get(ls[1])
     if ver_res.status_code != 200:
         sv.logger.warning('连接服务器失败')
@@ -63,13 +60,8 @@ async def updateDB(sv: Service, serid):
     sv.logger.info(f'{serid}数据库更新成功')
 
 
-async def check_ver(sv: Service, serid):
-    if serid == 'jp':
-        ls = jplist
-    if serid == 'bili':
-        ls = bililist
-    if serid == 'tw':
-        ls = list(twlist)
+async def check_ver(sv: Service, serid:str):
+    ls=regiondic[serid]
     try:
         with open(ls[3], encoding='utf8') as vfile:
             local_ver = json.load(vfile)
@@ -100,16 +92,9 @@ def campaign_logout(campaign, value):
     return name, vlue
 
 
-async def db_message(sv, serid, tense='all', lastday=7):
-    if serid == 'bili':
-        database_path = bililist[2]
-        fmsg='B服日程'
-    if serid == 'jp':
-        database_path = jplist[2]
-        fmsg='日服日程'
-    if serid == 'tw':
-        database_path = twlist[2]
-        fmsg='台服日程'
+async def db_message(sv, serid:str, tense='all', lastday=7):
+    database_path = regiondic[serid][2]
+    fmsg=regiondic[serid][4]
     if not os.path.exists(database_path):
         await updateDB(sv, serid)
     db = sqlite3.connect(database_path)

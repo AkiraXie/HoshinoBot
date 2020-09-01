@@ -7,40 +7,50 @@ p3 = R.img('priconne/quick/thou.png').cqcode
 p4 = R.img('priconne/quick/bqian.png').cqcode
 p5 = R.img('priconne/quick/bzhong.png').cqcode
 p6 = R.img('priconne/quick/bhou.png').cqcode
-@sv.on_rex(r'^([台国b])服?([前中后])rank表?', normalize=True, event='group')
+p7 = R.img('priconne/quick/rqian.png').cqcode
+p8 = R.img('priconne/quick/rzhong.png').cqcode
+p9 = R.img('priconne/quick/rhou.png').cqcode
+@sv.on_rex(r'^([台国b日])服?([前中后])rank表?', normalize=True, event='group')
 async def rank_sheet(bot, ctx, match):
     is_tw = match.group(1) == '台'
-    is_b = match.group(1) != '台'
+    is_b = match.group(1) == 'b' or match.group(1) == '国'
+    is_jp =match.group(1) == '日'
     is_qian = match.group(2) == '前'
     is_zhong = match.group(2) == '中'
     is_hou = match.group(2) == '后'
-    if not is_tw and not is_b:
-        await bot.send(ctx, '\n请您输入正确的查询方式：\n国前\\中\\后rank\n台前\\中\\后rank', at_sender=True)
-    else:
-        await bot.send(ctx, '图片较大，请稍等片刻')
-        if is_tw:
-            if is_qian:
-                await bot.send(ctx, f'台服前卫rank表：\n{p1}\nby 无羽', at_sender=True)
-                await util.silence(ctx, 60)
-            if is_zhong:
-                await bot.send(ctx, f'台服中卫rank表：\n{p2}\nby 无羽', at_sender=True)
-                await util.silence(ctx, 60)
-            if is_hou:
-                await bot.send(ctx, f'台服后卫rank表：\n{p3}\nby 无羽', at_sender=True)
-                await util.silence(ctx, 60)
-        if is_b:
-            if is_qian:
-                await bot.send(ctx, f'b服前卫rank表：\n{p4}\nby 席巴鸽', at_sender=True)
-                await util.silence(ctx, 60)
-            if is_zhong:
-                await bot.send(ctx, f'b服中卫rank表：\n{p5}\nby 席巴鸽', at_sender=True)
-                await util.silence(ctx, 60)
-            if is_hou:
-                await bot.send(ctx, f'b服后卫rank表：\n{p6}\nby 席巴鸽', at_sender=True)
-                await util.silence(ctx, 60)
+    await bot.send(ctx, '图片较大，请稍等片刻')
+    if is_tw:
+        if is_qian:
+            await bot.send(ctx, f'台服前卫rank表：\n{p1}', at_sender=True)
+            await util.silence(ctx, 60)
+        if is_zhong:
+            await bot.send(ctx, f'台服中卫rank表：\n{p2}', at_sender=True)
+            await util.silence(ctx, 60)
+        if is_hou:
+            await bot.send(ctx, f'台服后卫rank表：\n{p3}', at_sender=True)
+            await util.silence(ctx, 60)
+    if is_b:
+        if is_qian:
+            await bot.send(ctx, f'b服前卫rank表：\n{p4}', at_sender=True)
+            await util.silence(ctx, 60)
+        if is_zhong:
+            await bot.send(ctx, f'b服中卫rank表：\n{p5}', at_sender=True)
+            await util.silence(ctx, 60)
+        if is_hou:
+            await bot.send(ctx, f'b服后卫rank表：\n{p6}', at_sender=True)
+            await util.silence(ctx, 60)
+    if is_jp:
+        if is_qian:
+            await bot.send(ctx, f'日服前卫rank表：\n{p7}', at_sender=True)
+            await util.silence(ctx, 60)
+        if is_zhong:
+            await bot.send(ctx, f'日服中卫rank表：\n{p8}', at_sender=True)
+            await util.silence(ctx, 60)
+        if is_hou:
+            await bot.send(ctx, f'日服后卫rank表：\n{p9}', at_sender=True)
+            await util.silence(ctx, 60)
 
-
-@sv.on_command('arena_miner', aliases=('挖矿', 'jjc钻石', '竞技场钻石', 'jjc钻石查询', '竞技场钻石查询'))
+@sv.on_command('挖矿计算', aliases=('挖矿', 'jjc钻石', '竞技场钻石', 'jjc钻石查询', '竞技场钻石查询'))
 async def arena_miner(session: CommandSession):
     try:
         rank = int(session.current_arg_text)
