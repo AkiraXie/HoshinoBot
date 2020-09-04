@@ -70,6 +70,8 @@ async def _arena_query(session:CommandSession, region:int):
     sv.logger.info('Got response!')
 
     # 处理查询结果
+    if res == 117 :
+        session.finish('高峰期bot限流，请移步pcrdfans.com查询。',at_sender=True)
     if res is None:
         session.finish('查询出错，请再次查询\n如果多次查询失败，请先移步pcrdfans.com进行查询，并可联系维护组', at_sender=True)
     if not len(res):
