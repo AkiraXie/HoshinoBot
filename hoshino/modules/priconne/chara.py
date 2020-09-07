@@ -291,3 +291,25 @@ async def forceupdate(session):
 async def forcereload(session):
     reload_data()
     session.finish('重载数据成功')
+@sucmd('downloadicon',aliases=('下载头像',"下载icon"),force_private=False)
+async def iconcmd(session):
+    ids=session.current_arg_text.split()
+    for i in ids:
+        try:
+            download_chara_icon(i,6)
+            download_chara_icon(i,3)
+            download_chara_icon(i,1)
+        except Exception as e:
+            await session.send(f'id:{i}下载失败')
+        await session.send(f'id:{i}下载成功')
+@sucmd('downloadcard',aliases=('下载卡面','下载card'),force_private=False)
+async def cardcmd(session):
+    ids=session.current_arg_text.split()
+    for i in ids:
+        try:
+            download_card(i,6)
+            download_card(i,3)
+            download_card(i,1)
+        except Exception as e:
+            await session.send(f'id:{i}下载失败')
+        await session.send(f'id:{i}下载成功')
