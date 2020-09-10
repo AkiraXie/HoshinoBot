@@ -21,7 +21,7 @@ def get_circle_avatar(avatar, size):
     return ret_img
 
 async def throw(qq):
-    avatar_url=f'http://q1.qlogo.cn/g?b=qq&nk={qq}&s=640'
+    avatar_url=f'http://q1.qlogo.cn/g?b=qq&nk={qq}&s=160'
     imgres=await aiorequests.get(avatar_url)
     if not imgres:
         return -1
@@ -37,7 +37,7 @@ async def throw(qq):
 
 async def creep(qq):
     cid = random.randint(0, 53)
-    avatar_url=f'http://q1.qlogo.cn/g?b=qq&nk={qq}&s=640'
+    avatar_url=f'http://q1.qlogo.cn/g?b=qq&nk={qq}&s=160'
     imgres=await aiorequests.get(avatar_url)
     if not imgres:
         return -1
@@ -60,7 +60,6 @@ async def diu(bot,ctx):
             qq= segment['data']['qq']
             break
     if qq == '' or qq== 'all':
-        await bot.send(ctx,'丢丢失败，请at单一群友')
         return
     reply=await throw(qq)
     if isinstance(reply,str):
@@ -76,7 +75,6 @@ async def pa(bot,ctx):
             qq= segment['data']['qq']
             break
     if qq == '' or qq== 'all':
-        await bot.send(ctx,'爬爬失败，请at单一群友')
         return
     reply=await creep(qq)
     if isinstance(reply,str):
