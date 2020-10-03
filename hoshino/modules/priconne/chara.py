@@ -23,10 +23,10 @@ os.makedirs(R.img(f'priconne/card/').path,exist_ok=True)
 os.makedirs(R.img(f'priconne/unit/').path,exist_ok=True)
 NAME2ID = {}
 
-#更新数据，api由111234567890提供，十分感谢！
+#更新数据
 async def reload_pcrdata():
     try:
-        dataget=await aiorequests.get('http://api.h-loli.cc/pcr/priconne_data.py',timeout=10)
+        dataget=await aiorequests.get('http://api.akiraxie.me/pcr/priconne_data.py',timeout=5)
         datacon=await dataget.content
     except Exception as e:
         logger.error(f'连接服务器失败. {type(e)}')
@@ -48,7 +48,7 @@ def reload_data():
 
 async def reload_config():
     try:
-        dataget=await aiorequests.get('http://api.h-loli.cc/pcr/config.json',timeout=10)
+        dataget=await aiorequests.get('http://api.akiraxie.me/pcr/config.json',timeout=5)
         datacon=await dataget.content
     except Exception as e:
         logger.error(f'连接服务器失败. {type(e)}')
