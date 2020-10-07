@@ -25,6 +25,9 @@ async def setqa(bot, context):
     message = context['raw_message']
     if message.startswith('我问'):
         msg = message[2:].split('你答', 1)
+        if len(msg[0])==0:
+            await bot.send(context, '提问不可以是空字符串！\n', at_sender=True)
+            return
         if len(msg) == 1:
             return
         q, a = msg
@@ -114,8 +117,6 @@ async def lookqa(session: CommandSession):
 
 @sv.on_command('查有人问', aliases=('看看有人问', '看看大家问', '查找有人问'))
 async def lookgqa(session: CommandSession):
-    if not sv.check_priv(session.ctx, required_priv=Priv.ADMIN):
-        session.finish('只有管理员才可以查看"有人问"')
     gid = session.ctx['group_id']
     result = Question.select(Question.quest).where(
         Question.rep_group == gid, Question.rep_member == 1)
