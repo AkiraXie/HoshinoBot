@@ -287,7 +287,6 @@ async def gacha_300(session):
 @sv.on_rex(r'^氪金$', normalize=False)
 async def kakin(bot, ctx, match):
     if ctx['user_id'] not in bot.config.SUPERUSERS:
-        await bot.send(ctx, "只有SUPERUSER才能使用氪金！")
         return
     count = 0
     for m in ctx['message']:
