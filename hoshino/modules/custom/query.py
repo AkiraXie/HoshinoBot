@@ -1,5 +1,4 @@
 from hoshino import R, CommandSession, util, Service
-
 sv = Service('query')
 p1 = R.img('priconne/quick/tqian.png').cqcode
 p2 = R.img('priconne/quick/tzhong.png').cqcode
@@ -104,4 +103,11 @@ async def yukari(session: CommandSession):
 @sv.on_command('star', aliases=('星级表', '升星表'))
 async def star(session: CommandSession):
     await session.send(R.img('priconne/quick/star.jpg').cqcode, at_sender=True)
+    await util.silence(session.ctx, 60)
+
+byk=R.img('priconne/quick/banyuekan.jpg').cqcode
+@sv.on_command('半月刊',aliases=('活动半月刊','b服半月刊','国服半月刊'))
+async def banyuekan(session):
+    await session.send('图片较大，请稍等片刻')
+    await session.send(f'{byk}', at_sender=True)
     await util.silence(session.ctx, 60)
