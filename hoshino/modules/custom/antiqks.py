@@ -13,7 +13,7 @@ async def qks_keyword(bot, ctx):
     await bot.send(ctx, msg, at_sender=True)
 
 #影响性能，还有潜在的安全风险
-#@sv.on_rex(r'[a-z0-9A-Z\.]{4,12}\/[a-zA-Z0-9]+', normalize=False, event='group')
+@sv.on_rex(r'[a-z0-9A-Z\.]{4,12}\/[a-zA-Z0-9]+', normalize=False, event='group')
 async def qks_rex(bot, ctx, match):
     msg = f'?¿?¿?¿\n{qksimg}'
     res = 'http://'+match.group(0)
