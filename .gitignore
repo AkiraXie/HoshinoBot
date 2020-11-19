@@ -128,3 +128,4 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+hoshino/modules/custom/rss/__init__.py
