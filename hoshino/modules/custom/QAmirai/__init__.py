@@ -25,10 +25,10 @@ async def setqa(bot, context):
     message = context['raw_message']
     if message.startswith('我问'):
         msg = message[2:].split('你答', 1)
+        if len(msg) == 1:
+            return
         if len(msg[0])==0:
             await bot.send(context, '提问不可以是空字符串！\n', at_sender=True)
-            return
-        if len(msg) == 1:
             return
         q, a = msg
         if 'granbluefantasy.jp' in q or 'granbluefantasy.jp' in a:

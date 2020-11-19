@@ -1,5 +1,5 @@
 import aiohttp
-from hoshino import R, Service,Privilege as Priv
+from hoshino import R, Service,Privilege as Priv,aiorequests
 
 sv = Service('antiqks',visible=False,manage_priv=Priv.SUPERUSER,enable_on_default=True)
 
@@ -11,21 +11,22 @@ qksimg = R.img('qksimg.jpg').cqcode
 async def qks_keyword(bot, ctx):
     msg = f'?¿\n{qksimg}'
     await bot.send(ctx, msg, at_sender=True)
-
-#影响性能，还有潜在的安全风险
-@sv.on_rex(r'[a-z0-9A-Z\.]{4,12}\/[a-zA-Z0-9]+', normalize=False, event='group')
-async def qks_rex(bot, ctx, match):
-    msg = f'?¿?¿?¿\n{qksimg}'
-    res = 'http://'+match.group(0)
-    async with aiohttp.TCPConnector(verify_ssl=False) as connector:
-        async with aiohttp.request(
-            'GET',
-            url=res,
-            allow_redirects=False,
-            connector=connector
-        ) as resp:
-            h = resp.headers
-            s = resp.status
+async def check_gbf(url):
+    resp=await aiorequests.head(url,allow_redirects=False)
+    h = resp.headers
+    s = resp.status_code
     if s == 301 or s == 302:
         if 'granbluefantasy.jp' in h['Location']:
-            await bot.send(ctx, msg, at_sender=True)
+            return True,h['Location']
+    return False,h['Location']
+
+#潜在的安全风险和概率影响性能，故antiqks请谨慎开启
+@sv.on_rex(r'https?://[a-z0-9A-Z\.]{4,11}\/[a-zA-Z0-9]+', normalize=False, event='group')
+async def qks_rex(bot, ctx, match):
+    msg = f'?¿?¿?¿\n{qksimg}'
+    res = match.group(0)
+    a=await check_gbf(res)
+    if a[0] or (await check_gbf(a[1]))[0] :
+       await bot.send(ctx, msg, at_sender=True) 
+    
+                 
