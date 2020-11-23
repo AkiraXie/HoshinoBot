@@ -25,16 +25,16 @@ class ResObj:
 
     def __init__(self, res_path):
         res_dir = os.path.expanduser(get_bot().config.RESOURCE_DIR)
-        fullpath = os.path.abspath(os.path.join(res_dir, res_path))
-        if not fullpath.startswith(os.path.abspath(res_dir)):
+        self.fullpath = os.path.abspath(os.path.join(res_dir, res_path))
+        if not self.fullpath.startswith(os.path.abspath(res_dir)):
             raise ValueError('Cannot access outside RESOUCE_DIR')
-        self.__path = os.path.normpath(res_path)
+        
 
 
     @property
     def url(self):
         """
-        @return: 资源文件的url，供酷Q（或其他远程服务）使用
+        @return: 资源文件的url，供cqhttp使用
         """
         return urljoin(get_bot().config.RESOURCE_URL, pathname2url(self.__path))
 
@@ -42,10 +42,9 @@ class ResObj:
     @property
     def path(self):
         """
-        @return: 资源文件的路径，供Nonebot内部使用
+        @return: 资源文件的绝对路径，供bot内部使用
         """
-        res_dir = os.path.expanduser(get_bot().config.RESOURCE_DIR)
-        return os.path.join(res_dir, self.__path)
+        return os.path.normpath(self.fullpath)
 
 
     @property
@@ -60,10 +59,9 @@ class ResImg(ResObj):
             return MessageSegment.image(self.url)
         else:
             try:
-                return MessageSegment.image(pic2b64(self.open()))
+                return MessageSegment.image('file:///'+self.path)
             except Exception as e:
                 logger.exception(e)
                 return MessageSegment.text('[图片]')
-
     def open(self) -> Image:
         return Image.open(self.path)
