@@ -1,3 +1,4 @@
+        for t in texts:
 from hoshino import sucmd, Service
 from datetime import timedelta
 @sucmd('setblock',aliases=('拉黑','屏蔽'),force_private=False)
