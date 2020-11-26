@@ -1,4 +1,4 @@
-from hoshino import  Service,sucmd
+from hoshino import  Service,sucmd,Privilege as Priv
 from aiocqhttp.message import Message
 sv=Service('ocr',visible=False,enable_on_default=False,manage_priv=Priv.SUPERUSER)
 @sv.on_command('ocr',aliases=('识字','文字识别'))
