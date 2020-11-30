@@ -66,7 +66,10 @@ async def _arena_query(session:CommandSession, region:int):
         await session.send('\n⚠️您正在查询普通版炸弹人\n※万圣版可用万圣炸弹人/瓜炸等别称', at_sender=True)
     # 执行查询
     sv.logger.info('Doing query...')
-    res = await arena.do_query(defen, uid, region)
+    try:
+        res = await arena.do_query(defen, uid, region)
+    except TypeError:
+        session.finish('查询出错，请再次查询\n如果多次查询失败，请先移步pcrdfans.com进行查询，并可联系维护组', at_sender=True)
     sv.logger.info('Got response!')
 
     # 处理查询结果

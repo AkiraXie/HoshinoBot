@@ -1,9 +1,8 @@
-from hoshino import  Service,sucmd,Privilege as Priv
-from aiocqhttp.message import Message
+from hoshino import  Service,Privilege as Priv
 sv=Service('ocr',visible=False,enable_on_default=False,manage_priv=Priv.SUPERUSER)
 @sv.on_command('ocr',aliases=('识字','文字识别'))
 async def ooocr(session):
-    msg=Message(session.current_arg)
+    msg=session.ctx['message']
     imglist=[
         s.data['file']
         for s in msg

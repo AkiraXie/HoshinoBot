@@ -1,5 +1,4 @@
-        for t in texts:
-from hoshino import sucmd, Service
+from hoshino import sucmd
 from datetime import timedelta
 @sucmd('setblock',aliases=('拉黑','屏蔽'),force_private=False)
 async def setblock(session):
