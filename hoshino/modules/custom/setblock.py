@@ -1,4 +1,4 @@
-from hoshino import sucmd
+from hoshino import sucmd,Service
 from datetime import timedelta
 @sucmd('setblock',aliases=('拉黑','屏蔽'),force_private=False)
 async def setblock(session):
