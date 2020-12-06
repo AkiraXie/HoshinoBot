@@ -65,18 +65,18 @@ async def reload_config():
     logger.info('更新卡池配置成功')
     return 0
 
-async def download_chara_icon(id_, star):
+def download_chara_icon(id_, star):
     url = f'https://redive.estertion.win/icon/unit/{id_}{star}1.webp'
     save_path = R.img(f'priconne/unit/icon_unit_{id_}{star}1.png').path
     logger.info(f'Downloading chara icon from {url}')
     try:
-        rsp = await aiorequests.get(url, stream=True, timeout=5)
+        rsp = requests.get(url, stream=True, timeout=5)
     except Exception as e:
         logger.error(f'Failed to download {url}. {type(e)}')
         logger.exception(e)
         return 1,star
     if 200 == rsp.status_code:
-        img = Image.open(BytesIO(await rsp.content))
+        img = Image.open(BytesIO(rsp.content))
         img.save(save_path)
         logger.info(f'Saved to {save_path}')
         return 0,star
@@ -85,7 +85,7 @@ async def download_chara_icon(id_, star):
         return 1,star
 
 
-async def download_card(id_, star):
+def download_card(id_, star):
     url = f'https://redive.estertion.win/card/full/{id_}{star}1.webp'
     save_path = R.img(f'priconne/card/{id_}{star}1.png').path
     if star==1:
@@ -93,13 +93,13 @@ async def download_card(id_, star):
         save_path = R.img(f'priconne/card/{id_}11.png').path
     logger.info(f'Downloading card from {url}')
     try:
-        rsp = await aiorequests.get(url, stream=True, timeout=5)
+        rsp = requests.get(url, stream=True, timeout=5)
     except Exception as e:
         logger.error(f'Failed to download {url}. {type(e)}')
         logger.exception(e)
         return 1,star
     if 200 == rsp.status_code:
-        img = Image.open(BytesIO(await rsp.content))
+        img = Image.open(BytesIO(rsp.content))
         img.save(save_path)
         logger.info(f'Saved to {save_path}')
         return 0,star
@@ -169,9 +169,9 @@ class Chara:
         if not res.exist:
             res = R.img(f'priconne/unit/icon_unit_{self.id}11.png')
         if not res.exist:
-            await download_chara_icon(self.id, 6)
-            await download_chara_icon(self.id, 3)
-            await download_chara_icon(self.id, 1)
+            download_chara_icon(self.id, 6)
+            download_chara_icon(self.id, 3)
+            download_chara_icon(self.id, 1)
             res = R.img(f'priconne/unit/icon_unit_{self.id}{star}1.png')
         if not res.exist:
             res = R.img(f'priconne/unit/icon_unit_{self.id}31.png')
@@ -202,9 +202,9 @@ class Chara:
             tip=f"{self.name}1星卡面：\n"
             res = R.img(f'priconne/card/{self.id}11.png')
         if not res.exist:
-            await download_card(self.id, 6)
-            await download_card(self.id, 3)
-            await download_card(self.id, 1)
+            download_card(self.id, 6)
+            download_card(self.id, 3)
+            download_card(self.id, 1)
             tip=f"{self.name}{star}星卡面：\n"
             res = R.img(f'priconne/card/{self.id}{star}1.png')
         if not res.exist:
@@ -305,7 +305,7 @@ async def iconcmd(session):
     replys=["本次下载头像情况:"]
     for c in charas:
         for star in STARS:
-            code,s=await download_chara_icon(c.id,star)
+            code,s=download_chara_icon(c.id,star)
             status='成功' if code==0 else '失败'
             replys.append(f'name:{c.name},id:{c.id},star:{s},下载头像{status}')
     session.finish('\n'.join(replys))
@@ -316,7 +316,7 @@ async def cardcmd(session):
     replys=["本次下载卡面情况:"]
     for c in charas:
         for star in STARS:
-            code,s=await download_card(c.id,star)
+            code,s=download_card(c.id,star)
             status='成功' if code==0 else '失败'
             replys.append(f'name:{c.name},id:{c.id},star:{s},下载卡面{status}')
     session.finish('\n'.join(replys))
