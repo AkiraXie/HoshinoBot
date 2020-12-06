@@ -18,7 +18,7 @@ async def chooseone(bot, ctx):
             await bot.send(ctx,'选项不能全为空！',at_sender=True)
             return 
         msgs=['您的选项是:']
-        idchoices=list(f'{i}. {choice}' for i,choice in enumerate(choices))
+        idchoices=list(f'{i+1}. {choice}' for i,choice in enumerate(choices))
         msgs.extend(idchoices)
         if random.randrange(1000)<=76:
             msgs.append('建议您选择: “我全都要”')
