@@ -15,7 +15,7 @@ async def chooseone(bot, ctx):
             return
         choices=list(filter(lambda x:len(x)!=0,msg))
         if not choices:
-            bot.finish(ctx,'选项不能全为空！',at_sender=True)
+            bot.send(ctx,'选项不能全为空！',at_sender=True)
             return 
         msgs=['您的选项是:']
         idchoices=list(f'{i}. {choice}' for i,choice in enumerate(choices))
@@ -25,4 +25,4 @@ async def chooseone(bot, ctx):
         else:
             final=random.choice(choices)
             msgs.append(f'建议您选择: {final}')
-        bot.finish(ctx,'\n'.join(msgs),at_sender=True)
+        bot.send(ctx,'\n'.join(msgs),at_sender=True)
