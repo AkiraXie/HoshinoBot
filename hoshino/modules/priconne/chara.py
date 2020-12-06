@@ -169,9 +169,9 @@ class Chara:
         if not res.exist:
             res = R.img(f'priconne/unit/icon_unit_{self.id}11.png')
         if not res.exist:
-            download_chara_icon(self.id, 6)
-            download_chara_icon(self.id, 3)
-            download_chara_icon(self.id, 1)
+            await download_chara_icon(self.id, 6)
+            await download_chara_icon(self.id, 3)
+            await download_chara_icon(self.id, 1)
             res = R.img(f'priconne/unit/icon_unit_{self.id}{star}1.png')
         if not res.exist:
             res = R.img(f'priconne/unit/icon_unit_{self.id}31.png')
@@ -202,9 +202,9 @@ class Chara:
             tip=f"{self.name}1星卡面：\n"
             res = R.img(f'priconne/card/{self.id}11.png')
         if not res.exist:
-            download_card(self.id, 6)
-            download_card(self.id, 3)
-            download_card(self.id, 1)
+            await download_card(self.id, 6)
+            await download_card(self.id, 3)
+            await download_card(self.id, 1)
             tip=f"{self.name}{star}星卡面：\n"
             res = R.img(f'priconne/card/{self.id}{star}1.png')
         if not res.exist:
@@ -301,18 +301,22 @@ STARS=[1,3,6]
 @sucmd('downloadicon',aliases=('下载头像',"下载icon"),force_private=False)
 async def iconcmd(session):
     msgs=session.current_arg_text.split()
-    ids=list(map(lambda x:x if x.isdigit() else Chara.name2id(x),msgs))
-    for i in ids:
+    charas=list(map(lambda x:Chara.fromid(x) if x.isdigit() else Chara.fromname(x),msgs))
+    replys=["本次下载头像情况:"]
+    for c in charas:
         for star in STARS:
-            code,s=await download_chara_icon(i,star)
+            code,s=await download_chara_icon(c.id,star)
             status='成功' if code==0 else '失败'
-            await session.send(f'id:{i},star:{s},下载头像{status}')
-@sucmd('downloadcard',aliases=('下载卡面','下载card'),force_private=False)
+            replys.append(f'name:{c.name},id:{c.id},star:{s},下载头像{status}')
+    session.finish('\n'.join(replys))
+@sucmd('downloadcard',aliases=('下载卡面','下载card','下载立绘'),force_private=False)
 async def cardcmd(session):
     msgs=session.current_arg_text.split()
-    ids=list(map(lambda x:x if x.isdigit() else Chara.name2id(x),msgs))
-    for i in ids:
+    charas=list(map(lambda x:Chara.fromid(x) if x.isdigit() else Chara.fromname(x),msgs))
+    replys=["本次下载卡面情况:"]
+    for c in charas:
         for star in STARS:
-            code,s=await download_card(i,star)
+            code,s=await download_card(c.id,star)
             status='成功' if code==0 else '失败'
-            await session.send(f'id:{i},star:{s},下载卡面{status}')
+            replys.append(f'name:{c.name},id:{c.id},star:{s},下载卡面{status}')
+    session.finish('\n'.join(replys))
