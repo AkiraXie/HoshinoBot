@@ -7,4 +7,4 @@ async def gift(session):
         if m.type == 'at' and m.data['qq'] != 'all' :
             qq = m.data['qq']
             break
-    session.finish(f'[CQ:gift,qq={qq},id={randint(13)}]')
+    session.finish(f'[CQ:gift,qq={qq},id={randint(0,13)}]')

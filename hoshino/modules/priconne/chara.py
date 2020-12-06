@@ -65,24 +65,27 @@ async def reload_config():
     logger.info('更新卡池配置成功')
     return 0
 
-def download_chara_icon(id_, star):
+async def download_chara_icon(id_, star):
     url = f'https://redive.estertion.win/icon/unit/{id_}{star}1.webp'
     save_path = R.img(f'priconne/unit/icon_unit_{id_}{star}1.png').path
     logger.info(f'Downloading chara icon from {url}')
     try:
-        rsp = requests.get(url, stream=True, timeout=5)
+        rsp = await aiorequests.get(url, stream=True, timeout=5)
     except Exception as e:
         logger.error(f'Failed to download {url}. {type(e)}')
         logger.exception(e)
+        return 1,star
     if 200 == rsp.status_code:
-        img = Image.open(BytesIO(rsp.content))
+        img = Image.open(BytesIO(await rsp.content))
         img.save(save_path)
         logger.info(f'Saved to {save_path}')
+        return 0,star
     else:
         logger.error(f'Failed to download {url}. HTTP {rsp.status_code}')
+        return 1,star
 
 
-def download_card(id_, star):
+async def download_card(id_, star):
     url = f'https://redive.estertion.win/card/full/{id_}{star}1.webp'
     save_path = R.img(f'priconne/card/{id_}{star}1.png').path
     if star==1:
@@ -90,18 +93,21 @@ def download_card(id_, star):
         save_path = R.img(f'priconne/card/{id_}11.png').path
     logger.info(f'Downloading card from {url}')
     try:
-        rsp = requests.get(url, stream=True, timeout=5)
+        rsp = await aiorequests.get(url, stream=True, timeout=5)
     except Exception as e:
         logger.error(f'Failed to download {url}. {type(e)}')
         logger.exception(e)
+        return 1,star
     if 200 == rsp.status_code:
-        img = Image.open(BytesIO(rsp.content))
+        img = Image.open(BytesIO(await rsp.content))
         img.save(save_path)
         logger.info(f'Saved to {save_path}')
+        return 0,star
     else:
         logger.error(f'Failed to download {url}. HTTP {rsp.status_code}')
+        return 1,star
 
-@scheduled_job('cron',hour='0,12',minute='40')
+@scheduled_job('cron',hour='0,12',minute='40',jitter=20)
 async def updatedata():
     await reload_pcrdata()
     await reload_config()
@@ -291,25 +297,22 @@ async def forceupdate(session):
 async def forcereload(session):
     reload_data()
     session.finish('重载数据成功')
+STARS=[1,3,6]
 @sucmd('downloadicon',aliases=('下载头像',"下载icon"),force_private=False)
 async def iconcmd(session):
-    ids=session.current_arg_text.split()
+    msgs=session.current_arg_text.split()
+    ids=list(map(lambda x:x if x.isdigit() else Chara.name2id(x),msgs))
     for i in ids:
-        try:
-            download_chara_icon(i,6)
-            download_chara_icon(i,3)
-            download_chara_icon(i,1)
-        except Exception as e:
-            await session.send(f'id:{i}下载失败')
-        await session.send(f'id:{i}下载成功')
+        for star in STARS:
+            code,s=download_chara_icon(i,star)
+            status='成功' if code==0 else '失败'
+            await session.send(f'id:{i},star:{s},下载头像{status}')
 @sucmd('downloadcard',aliases=('下载卡面','下载card'),force_private=False)
 async def cardcmd(session):
-    ids=session.current_arg_text.split()
+    msgs=session.current_arg_text.split()
+    ids=list(map(lambda x:x if x.isdigit() else Chara.name2id(x),msgs))
     for i in ids:
-        try:
-            download_card(i,6)
-            download_card(i,3)
-            download_card(i,1)
-        except Exception as e:
-            await session.send(f'id:{i}下载失败')
-        await session.send(f'id:{i}下载成功')
+        for star in STARS:
+            code,s=download_card(i,star)
+            status='成功' if code==0 else '失败'
+            await session.send(f'id:{i},star:{s},下载卡面{status}')

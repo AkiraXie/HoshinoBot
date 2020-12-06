@@ -13,17 +13,16 @@ async def chooseone(bot, ctx):
         msg = message[2:].split('还是')
         if len(msg) == 1:
             return
-        for i in msg:
-            if len(i)==0:
-                await bot.send(ctx, '不支持选择空字符')
-                return
-        choices=msg
-        choices.append('"我全都要"')
-        final_choice = random.choice(choices)
-        reply = '您的选项是：'
-        num = 1
-        for i in choices[:-1]:
-            reply += f'\n{num}、 {i}'
-            num = num+1
-        reply += f'\n最终的决定是：{final_choice}'
-        await bot.send(ctx, reply, at_sender=True)
+        choices=list(filter(lambda x:len(x)!=0,msg))
+        if not choices:
+            bot.finish(ctx,'选项不能全为空！',at_sender=True)
+            return 
+        msgs=['您的选项是:']
+        idchoices=list(f'{i}. {choice}' for i,choice in enumerate(choices))
+        msgs.extend(idchoices)
+        if random.randrange(1000)<=76:
+            msgs.append('建议您选择: “我全都要”')
+        else:
+            final=random.choice(choices)
+            msgs.append(f'建议您选择: {final}')
+        bot.finish(ctx,'\n'.join(msgs),at_sender=True)
