@@ -301,7 +301,7 @@ STARS=[1,3,6]
 @sucmd('downloadicon',aliases=('下载头像',"下载icon"),force_private=False)
 async def iconcmd(session):
     msgs=session.current_arg_text.split()
-    charas=list(map(lambda x:Chara.fromid(x) if x.isdigit() else Chara.fromname(x),msgs))
+    charas=list(map(lambda x:Chara.fromid(int(x)) if x.isdigit() else Chara.fromname(x),msgs))
     replys=["本次下载头像情况:"]
     for c in charas:
         for star in STARS:
@@ -312,7 +312,7 @@ async def iconcmd(session):
 @sucmd('downloadcard',aliases=('下载卡面','下载card','下载立绘'),force_private=False)
 async def cardcmd(session):
     msgs=session.current_arg_text.split()
-    charas=list(map(lambda x:Chara.fromid(x) if x.isdigit() else Chara.fromname(x),msgs))
+    charas=list(map(lambda x:Chara.fromid(int(x)) if x.isdigit() else Chara.fromname(x),msgs))
     replys=["本次下载卡面情况:"]
     for c in charas:
         for star in STARS:
