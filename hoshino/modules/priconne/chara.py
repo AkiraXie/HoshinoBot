@@ -304,7 +304,7 @@ async def iconcmd(session):
     ids=list(map(lambda x:x if x.isdigit() else Chara.name2id(x),msgs))
     for i in ids:
         for star in STARS:
-            code,s=download_chara_icon(i,star)
+            code,s=await download_chara_icon(i,star)
             status='成功' if code==0 else '失败'
             await session.send(f'id:{i},star:{s},下载头像{status}')
 @sucmd('downloadcard',aliases=('下载卡面','下载card'),force_private=False)
@@ -313,6 +313,6 @@ async def cardcmd(session):
     ids=list(map(lambda x:x if x.isdigit() else Chara.name2id(x),msgs))
     for i in ids:
         for star in STARS:
-            code,s=download_card(i,star)
+            code,s=await download_card(i,star)
             status='成功' if code==0 else '失败'
             await session.send(f'id:{i},star:{s},下载卡面{status}')
