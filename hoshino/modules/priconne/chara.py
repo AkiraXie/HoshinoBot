@@ -65,8 +65,8 @@ async def reload_config():
     logger.info('更新卡池配置成功')
     return 0
 
-def download_chara_icon(id_, star):
-    url = f'https://redive.estertion.win/icon/unit/{id_}{star}1.webp'
+def download_chara_icon(id_, star,rurl='https://redive.estertion.win/icon/unit/'):
+    url = rurl+f'{id_}{star}1.webp'
     save_path = R.img(f'priconne/unit/icon_unit_{id_}{star}1.png').path
     logger.info(f'Downloading chara icon from {url}')
     try:
@@ -85,8 +85,8 @@ def download_chara_icon(id_, star):
         return 1,star
 
 
-def download_card(id_, star):
-    url = f'https://redive.estertion.win/card/full/{id_}{star}1.webp'
+def download_card(id_, star,rurl='https://redive.estertion.win/card/full/'):
+    url = rurl+f'{id_}{star}1.webp'
     save_path = R.img(f'priconne/card/{id_}{star}1.png').path
     if star==1:
         url = f'https://redive.estertion.win/card/profile/{id_}11.webp'
@@ -285,6 +285,7 @@ class Chara:
         if not NAME2ID:
             gen_name2id()
         return NAME2ID[name] if name in NAME2ID else Chara.UNKNOWN
+gen_name2id()
 @sucmd('更新卡池',aliases=('更新数据'),force_private=False)
 async def forceupdate(session):
     code_1=await reload_config()
@@ -317,6 +318,28 @@ async def cardcmd(session):
     for c in charas:
         for star in STARS:
             code,s=download_card(c.id,star)
+            status='成功' if code==0 else '失败'
+            replys.append(f'name:{c.name},id:{c.id},star:{s},下载卡面{status}')
+    session.finish('\n'.join(replys))
+@sucmd('downloadticon',aliases=('下载t头像',"下载ticon"),force_private=False)
+async def ticoncmd(session):
+    msgs=session.current_arg_text.split()
+    charas=list(map(lambda x:Chara.fromid(int(x)) if x.isdigit() else Chara.fromname(x),msgs))
+    replys=["本次下载头像情况:"]
+    for c in charas:
+        for star in STARS:
+            code,s=download_chara_icon(c.id,star,'https://api.redive.lolikon.icu/icon/icon_unit_')
+            status='成功' if code==0 else '失败'
+            replys.append(f'name:{c.name},id:{c.id},star:{s},下载头像{status}')
+    session.finish('\n'.join(replys))
+@sucmd('downloadtcard',aliases=('下载t卡面','下载tcard','下载t立绘'),force_private=False)
+async def tcardcmd(session):
+    msgs=session.current_arg_text.split()
+    charas=list(map(lambda x:Chara.fromid(int(x)) if x.isdigit() else Chara.fromname(x),msgs))
+    replys=["本次下载卡面情况:"]
+    for c in charas:
+        for star in STARS[1:]:
+            code,s=download_card(c.id,star,'https://api.redive.lolikon.icu/bg_still/bg_still_')
             status='成功' if code==0 else '失败'
             replys.append(f'name:{c.name},id:{c.id},star:{s},下载卡面{status}')
     session.finish('\n'.join(replys))
