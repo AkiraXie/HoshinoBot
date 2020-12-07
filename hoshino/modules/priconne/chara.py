@@ -339,7 +339,7 @@ async def tcardcmd(session):
     replys=["本次下载卡面情况:"]
     for c in charas:
         for star in STARS[1:]:
-            code,s=download_card(c.id,star,'https://api.redive.lolikon.icu/bg_still/bg_still_')
+            code,s=download_card(c.id,star,'https://api.redive.lolikon.icu/bg_still/still_unit_')
             status='成功' if code==0 else '失败'
             replys.append(f'name:{c.name},id:{c.id},star:{s},下载卡面{status}')
     session.finish('\n'.join(replys))
