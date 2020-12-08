@@ -129,7 +129,7 @@ async def lookgqa(session: CommandSession):
 async def delqa(session: CommandSession):
     ctx = session.ctx
     gid = ctx['group_id']
-    q=session.current_arg_text
+    q=session.current_arg_text.strip()
     ans = answers.get(q)
     if not sv.check_priv(ctx, required_priv=Priv.ADMIN):
         session.finish('只有管理员才能删除指定人的问题', at_sender=False)
