@@ -125,7 +125,32 @@ async def lookgqa(session: CommandSession):
         msg.append(res.quest)
     await session.send('/'.join(msg), at_sender=True)
 
-
+@sv.on_command('删除我问', aliases=('删我问', '删人问'))
+async def delqa(session: CommandSession):
+    ctx = session.ctx
+    gid = ctx['group_id']
+    q=session.current_arg_text
+    ans = answers.get(q)
+    if not sv.check_priv(ctx, required_priv=Priv.ADMIN):
+        session.finish('只有管理员才能删除指定人的问题', at_sender=False)
+    if ans is None:
+        session.finish('我不记得有这个问题')
+    for m in ctx['message']:
+        if m.type == 'at' and m.data['qq'] != 'all' :
+            uid = int(m.data['qq'])
+            break
+    specific = union(gid, uid)
+    a = ans.get(specific)
+    if a:
+        Question.delete().where(
+            Question.quest == q,
+            Question.rep_group == gid,
+            Question.rep_member == uid,
+        ).execute()
+        del ans[specific]
+        if not ans:
+            del answers[q]
+        session.finish(f'删除{q}成功\n不再回答"{a}"', at_sender=False)
 @sv.on_message('group')
 async def answer(bot, context):
     ans = answers.get(context['raw_message'])
