@@ -44,31 +44,7 @@ def dump_db():
     with open(DB_PATH, 'w', encoding='utf8') as f:
         json.dump(j, f, ensure_ascii=False)
 
-def get_like_num(id_):
-    return len(DB.get(id_, {}).get('like', set()))
 
-def add_like(id_, uid):
-    e = DB.get(id_, {})
-    l = e.get('like', set())
-    k = e.get('dislike', set())
-    l.add(uid)
-    k.discard(uid)
-    e['like'] = l
-    e['dislike'] = k
-    DB[id_] = e
-
-def get_dislike_num(id_):
-    return len(DB.get(id_, {}).get('dislike', set()))
-
-def add_dislike(id_, uid):
-    e = DB.get(id_, {})
-    l = e.get('like', set())
-    k = e.get('dislike', set())
-    l.discard(uid)
-    k.add(uid)
-    e['like'] = l
-    e['dislike'] = k
-    DB[id_] = e
 
 
 _last_query_time = 0
@@ -135,17 +111,8 @@ async def do_query(id_list, user_id, region=1):
             'atk': [ Chara(c['id'] // 100, c['star'], c['equip']) for c in entry['atk'] ],
             'up': entry['up'],
             'down': entry['down'],
-            'my_up': get_like_num(entry['id']),
-            'my_down': get_dislike_num(entry['id'])
         } for entry in res
     ]
     return res
 
 
-async def do_like(qkey, user_id, action):
-    true_id = get_true_id(qkey, user_id)
-    if true_id is None:
-        raise KeyError
-    add_like(true_id, user_id) if action > 0 else add_dislike(true_id, user_id)
-    dump_db()
-    # TODO: upload to website

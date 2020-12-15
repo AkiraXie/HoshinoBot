@@ -251,7 +251,7 @@ async def gacha_300(session):
     msg = [
         f"\n素敵な仲間が増えますよ！ {res}",
         f"★★★×{s3} ★★×{s2} ★×{s1}",
-        f"获得记忆碎片×{100*up}与女神秘石×{50*(s3) + 10*s2 + s1}！\n第{result['first_up_pos']}抽首次获得up角色" if up else f"获得女神秘石{50*(up+s3) + 10*s2 + s1}个！"
+        f"获得{up}个up角色与女神秘石×{50*(s3) + 10*s2 + s1}！\n第{result['first_up_pos']}抽首次获得up角色" if up else f"获得女神秘石{50*(up+s3) + 10*s2 + s1}个！"
     ]
 
     if up == 0 and s3 == 0:
@@ -277,8 +277,6 @@ async def gacha_300(session):
         msg.append("抽井母五一气呵成！您就是欧洲人？")
     elif up >= 4:
         msg.append("记忆碎片一大堆！您是托吧？")
-    if lenth == 4:
-        msg.append('手机QQ会出现吞图情况,请点开大图查看结果')
     await session.send('\n'.join(msg), at_sender=True)
     silence_time = (100*up+50*s3 + 10*s2 + s1) * 1
     await silence(session.ctx, silence_time)

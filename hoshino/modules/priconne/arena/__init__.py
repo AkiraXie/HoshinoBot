@@ -86,8 +86,8 @@ async def _arena_query(session:CommandSession, region:int):
         sv.logger.info('Arena generating picture...')
         atk_team = [ Chara.gen_team_pic(team=entry['atk'],text="\n".join([
       f"{entry['qkey']}",
-      f"赞 {entry['up']}+{entry['my_up']}" if entry['my_up'] else f"赞 {entry['up']}",
-      f"踩 {entry['down']}+{entry['my_down']}" if entry['my_down'] else f"踩 {entry['down']}",
+      f"赞 {entry['up']}",
+      f"踩 {entry['down']}",
   ])) for entry in res ]
         atk_team = concat_pic(atk_team)
         atk_team = pic2b64(atk_team)
@@ -103,39 +103,11 @@ async def _arena_query(session:CommandSession, region:int):
 
     msg = [
         defen,
-        f'已为骑士{at}查询到以下进攻方案：',
         str(atk_team),
-        '※发送"点赞/点踩"可进行评价',
-        '※手机QQ可能会出现吞图情况，请点开大图查看',
     ]
-    if region == 1:
-        msg.append('※使用"b怎么拆"或"台怎么拆"可按服过滤')
     msg.append('Support by pcrdfans_com')
-
     sv.logger.debug('Arena sending result...')
-    await session.send('\n'.join(msg))
+    await session.send('\n'.join(msg),at_sender=1)
     sv.logger.debug('Arena result sent!')
 
 
-@sv.on_command('点赞', only_to_me=False)
-async def arena_like(session:CommandSession):
-    await _arena_feedback(session, 1)
-
-@sv.on_command('点踩', only_to_me=False)
-async def arena_dislike(session:CommandSession):
-    await _arena_feedback(session, -1)
-
-rex_qkey = re.compile(r'^[0-9a-zA-Z]{5}$')
-async def _arena_feedback(session:CommandSession, action:int):
-    action_tip = '赞' if action > 0 else '踩'
-    qkey = session.current_arg_text.strip()
-    if not qkey:
-        session.finish(f'请发送"点{action_tip}+作业id"，如"点{action_tip} ABCDE"，空格隔开不分大小写', at_sender=True)
-    if not rex_qkey.match(qkey):
-        session.finish(f'您要点{action_tip}的作业id不合法', at_sender=True)
-    try:
-        uid = session.ctx['user_id']
-        await arena.do_like(qkey, uid, action)
-    except KeyError:
-        session.finish('无法找到作业id！您只能评价您最近查询过的作业', at_sender=True)
-    await session.send('感谢您的反馈！', at_sender=True)
