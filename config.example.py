@@ -21,7 +21,7 @@ HOST = '127.0.0.1'      # Windows部署使用此条配置
 # HOST = '0.0.0.0'      # 开放公网访问使用此条配置（不安全）
 
 IS_CQPRO = False        # 是否使用Pro版酷Q功能
-
+GO_CQHTTP_WEBPORT = 9999
 # 资源库文件夹  Nonebot访问本机资源
 RESOURCE_DIR = './res/'
 
