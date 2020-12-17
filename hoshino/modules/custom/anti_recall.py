@@ -1,4 +1,5 @@
 from hoshino import  Service,Privilege as Priv
+import re
 sv=Service('anti_group_recall',visible=False,enable_on_default=False,manage_priv=Priv.SUPERUSER)
 @sv.on_notice('group_recall')
 async def _(session):
@@ -6,7 +7,7 @@ async def _(session):
     uid=session.event.user_id
     oid=session.event.operator_id
     msgid=session.event.message_id
-    msgdic=await session.bot.get_msg(msgid) if isinstance(msgid,int) else await session.bot.get_forward_msg(msgid)
+    msgdic=await session.bot.get_msg(message_id=msgid)
     msg=msgdic['message']
     user_dic = await session.bot.get_group_member_info(group_id=session.event.group_id, user_id=session.event.user_id,
                                                no_cache=True)
