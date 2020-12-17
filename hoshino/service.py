@@ -385,7 +385,15 @@ class Service:
                     return
             return nonebot.on_natural_language(keywords, **kwargs)(wrapper)
         return deco
-
+    def on_notice(self, *events):
+        def deco(func):
+            @wraps(func)
+            async def wrapper(session: nonebot.NoticeSession):
+                if not self.check_enabled(session.event.group_id):
+                    return
+                return await func(session)
+            return nonebot.on_notice(*events)(wrapper)
+        return deco
 
     def scheduled_job(self, *args, **kwargs) -> Callable:
         kwargs.setdefault('timezone', pytz.timezone('Asia/Shanghai'))
