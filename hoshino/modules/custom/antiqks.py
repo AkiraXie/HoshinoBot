@@ -26,10 +26,10 @@ async def check_gbf(url):
     return False,h['Location']
 
 #潜在的安全风险和概率影响性能，故antiqks请谨慎开启
-@sv.on_rex(r'[a-z0-9A-Z\.]{4,11}\/[a-zA-Z0-9]+', normalize=False, event='group')
+@sv.on_rex(r'[a-z0-9A-Z\.\-]{4,11}\/[a-zA-Z0-9\-]+', normalize=False, event='group')
 async def qks_rex(bot, ctx, match):
     msg = f'?¿?¿?¿\n{qksimg}'
-    res = match.group(0)
+    res = 'http://'+match.group(0)
     if (a:=await check_gbf(res)) is  None:
         return
     elif a[0] or (await check_gbf(a[1]))[0] :
