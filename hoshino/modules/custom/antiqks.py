@@ -3,11 +3,11 @@ from hoshino import R, Service,Privilege as Priv,aiorequests
 
 sv = Service('antiqks',visible=False,manage_priv=Priv.SUPERUSER,enable_on_default=True)
 
-qks_url = ["granbluefantasy.jp"]
+
 qksimg = R.img('qksimg.jpg').cqcode
 
 
-@sv.on_keyword(qks_url, normalize=True, event='group')
+@sv.on_keyword(["granbluefantasy.jp"], normalize=True, event='group')
 async def qks_keyword(bot, ctx):
     msg = f'?¿\n{qksimg}'
     await bot.send(ctx, msg, at_sender=True)
@@ -15,6 +15,8 @@ async def check_gbf(url):
     resp=await aiorequests.head(url,allow_redirects=False)
     h = resp.headers
     s = resp.status_code
+    if 'Location' not in h:
+        return
     if s == 301 or s == 302:
         if 'granbluefantasy.jp' in h['Location']:
             return True,h['Location']
@@ -26,7 +28,10 @@ async def qks_rex(bot, ctx, match):
     msg = f'?¿?¿?¿\n{qksimg}'
     res = match.group(0)
     a=await check_gbf(res)
+    if not a:
+        return
     if a[0] or (await check_gbf(a[1]))[0] :
-       await bot.send(ctx, msg, at_sender=True) 
+       await bot.send(ctx, msg, at_sender=True)
+       return
     
                  

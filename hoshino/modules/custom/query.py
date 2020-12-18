@@ -13,7 +13,7 @@ brank=[p4,p5,p6]
 trank=[p1,p2,p3]
 rrank=[p7,p8,p9]
 posdic={"前":0,"中":1,"后":2}
-serdic={'b':brank,'国':brank,'台':trank,'日':rrank}
+serdic={'b':brank,'国':brank,'台':trank,'日':rrank,'t':trank,'j':rrank}
 
 async def send_rank(bot, ctx,ser,pos):
     msg=['Rank表仅供参考,具体以公会要求为准','不定期更新，来源见图']
@@ -92,7 +92,3 @@ async def banyuekan(session):
     await session.send(f'{byk.cqcode}', at_sender=True)
     await util.silence(session.ctx, 60)
 
-'''#TODO
-@sucmd('downloadquery',aliases=['下载','资料下载','下载资料'],force_private=False)
-async def dlquery(session):
-'''

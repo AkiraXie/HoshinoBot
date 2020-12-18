@@ -24,7 +24,7 @@ async def whois(bot, ctx, match):
 
     msg = f'\n{chara.name}\n{chara.icon.cqcode}'
     await bot.send(ctx, msg, at_sender=True)
-@sv.on_rex(r'^[看查]?\s?([1-6一二三四五六]星)?\s?(.{1,20})(立绘|卡面)$')
+@sv.on_rex(r'^[看查]?\s?([1-6一二三四五六][xX星])?\s?(.{1,20})(立绘|卡面)$')
 async def lookcard(bot,ctx,match):
     worddic={"一":1,"二":2,"三":3,"四":4,"五":5,"六":6}
     uid = ctx['user_id']
