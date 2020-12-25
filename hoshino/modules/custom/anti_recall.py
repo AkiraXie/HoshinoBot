@@ -8,11 +8,11 @@ async def _(session):
     oid=session.event.operator_id
     msgid=session.event.message_id
     msgdic=await session.bot.get_msg(message_id=msgid)
-    msg=msgdic['message']
+    msg=msgdic['message_raw']
     user_dic = await session.bot.get_group_member_info(group_id=session.event.group_id, user_id=session.event.user_id,
                                                no_cache=True)
     user_card = user_dic['card'] if user_dic['card'] else user_dic['nickname']
     if oid==uid:
-        await session.bot.send_group_msg(message=f'{user_card}({uid})撤回消息:\n{msg}',group_id=gid)
+        await session.bot.send_group_msg(message=f'{user_card}({uid})撤回消息:\n{msg}',group_id=gid,auto_escape=1)
     else:
-        await session.bot.send_group_msg(message=f'管理员撤回了{user_card}({uid})的消息:\n{msg}',group_id=gid)
+        await session.bot.send_group_msg(message=f'管理员撤回了{user_card}({uid})的消息:\n{msg}',group_id=gid,auto_escape=1)

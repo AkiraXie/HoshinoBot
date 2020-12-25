@@ -1,4 +1,5 @@
 from hoshino import R, CommandSession, util, Service,sucmd,aiorequests
+import numpy as np
 sv = Service('query')
 p1 = R.img('priconne/quick/tqian.png')
 p2 = R.img('priconne/quick/tzhong.png')
@@ -29,41 +30,43 @@ async def send_rank(bot, ctx,ser,pos):
 async def rank_sheet(bot, ctx, match):
     await send_rank(bot,ctx,match.group(1),match.group(2))
 
+
+
+
+this_season = np.zeros(15001, dtype=int)
+all_season = np.zeros(15001, dtype=int)
+
+this_season[1:11] = 50
+this_season[11:101] = 10
+this_season[101:201] = 5
+this_season[201:501] = 3
+this_season[501:1001] = 2
+this_season[1001:2001] = 2
+this_season[2001:4000] = 1
+this_season[4000:8000:100] = 50
+this_season[8100:15001:100] = 15
+
+all_season[1:11] = 500
+all_season[11:101] = 50
+all_season[101:201] = 30
+all_season[201:501] = 10
+all_season[501:1001] = 5
+all_season[1001:2001] = 3
+all_season[2001:4001] = 2
+all_season[4001:7999] = 1
+all_season[8100:15001:100] = 30
+
 @sv.on_command('挖矿计算', aliases=('挖矿', 'jjc钻石', '竞技场钻石', 'jjc钻石查询', '竞技场钻石查询'))
 async def arena_miner(session: CommandSession):
     try:
         rank = int(session.current_arg_text)
     except:
-        session.finish(f'请输入"挖矿 纯数字最高排名"', at_sender=True)
-    if (rank > 15000):
-        amount = 42029
-    elif (rank > 12000):
-        amount = (rank / 100 - 120) * 45 + 40679
-    elif (rank > 11900):
-        amount = 40599
-    elif (rank > 7999):
-        amount = (rank / 100 - 80) * 95 + 36799
-    elif (rank > 4000):
-        amount = (rank - 4001) + 32800
-    elif (rank > 2000):
-        amount = (rank - 2001) * 3 + 26800
-    elif (rank > 1000):
-        amount = (rank - 1001) * 5 + 21800
-    elif (rank > 500):
-        amount = (rank - 501) * 7 + 18300
-    elif (rank > 200):
-        amount = (rank - 201) * 13 + 14400
-    elif (rank > 100):
-        amount = (rank - 101) * 35 + 10900
-    elif (rank > 10):
-        amount = (rank - 11) * 60 + 5500
-    elif (rank > 0):
-        amount = (rank - 1) * 550
-    else:
-        amount = 0
-    amount = int(amount)
-    messages = f"矿里还剩{amount}钻石"
-    await session.send(messages, at_sender=True)
+        return
+    rank = np.clip(rank, 1, 15001)
+    s_all = all_season[1:rank].sum()
+    s_this = this_season[1:rank].sum()
+    msg = f"\n最高排名奖励还剩{s_this}钻\n历届最高排名还剩{s_all}钻"
+    session.finish(msg,at_sender=1)
 
 
 yukari_pic = R.img('priconne/quick/yukari.jpg').cqcode
