@@ -5,7 +5,7 @@ async def setblock(session):
     ctx=session.ctx
     try:
         timelen=5 if not session.current_arg_text  else int(session.current_arg_text)
-    else:
+    except:
         return
     count=0
     for m in ctx['message']:
