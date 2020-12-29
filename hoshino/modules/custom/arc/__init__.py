@@ -5,9 +5,9 @@ import random
 import math
 import time as _time
 import os
-from arcaea_crawler import *
+from .arcaea_crawler import *
 from hoshino import  Service,Privilege as Priv
-sv=Service('acr',visible=False,enable_on_default=False,manage_priv=Priv.SUPERUSER)
+sv=Service('arc',visible=False,enable_on_default=False,manage_priv=Priv.SUPERUSER)
 dsname=os.path.join(os.path.dirname(__file__),'ds.txt')
 f = open(dsname, 'r', encoding='utf-8')
 dss = f.readlines()
