@@ -1,6 +1,6 @@
 from hoshino import  Service,Privilege as Priv
 sv=Service('poke',visible=False,enable_on_default=False,manage_priv=Priv.SUPERUSER)
-@sv.on_notice('poke')
+@sv.on_notice('notify.poke')
 async def poke(session):
     uid=session.event.user_id
     tid=session.event.target_id
