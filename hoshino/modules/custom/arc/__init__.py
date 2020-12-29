@@ -6,7 +6,7 @@ import math
 import time as _time
 import os
 from .arcaea_crawler import *
-from hoshino import  Service,Privilege as Priv
+from hoshino import  Service,CommandSession,Privilege as Priv
 sv=Service('arc',visible=False,enable_on_default=False,manage_priv=Priv.SUPERUSER)
 dsname=os.path.join(os.path.dirname(__file__),'ds.txt')
 f = open(dsname, 'r', encoding='utf-8')
@@ -51,7 +51,7 @@ async def _(session: CommandSession):
     session.state['id'] = session.current_arg_text.strip()
 
 
-@on_command('arcds', only_to_me=False)
+@sv.on_command('arcds', only_to_me=False)
 async def ds(session: CommandSession):
     result_str = ""
     num = 0
