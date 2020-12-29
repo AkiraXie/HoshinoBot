@@ -27,8 +27,8 @@ async def setqa(bot, context):
         msg = message[2:].split('你答', 1)
         if len(msg) == 1:
             return
-        if len(msg[0])==0:
-            await bot.send(context, '提问不可以是空字符串！\n', at_sender=True)
+        if len(msg[0])==0 or len(msg[1])==0:
+            await bot.send(context, '提问和回答不可以是空字符串！\n', at_sender=True)
             return
         q, a = msg
         if 'granbluefantasy.jp' in q or 'granbluefantasy.jp' in a:
@@ -52,6 +52,9 @@ async def setqa(bot, context):
             return
         msg = message[3:].split('你答', 1)
         if len(msg) == 1:
+            return
+        if len(msg[0])==0 or len(msg[1])==0:
+            await bot.send(context, '提问和回答不可以是空字符串！\n', at_sender=True)
             return
         q, a = msg
         if q not in answers:

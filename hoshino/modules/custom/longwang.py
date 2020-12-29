@@ -20,8 +20,9 @@ async def longwang(session):
         else:
             longwanglist.append(lw)
     longwangme=R.img('longwang/',random.choice(longwangmelist)).cqcode
-    longwang=R.img('longwang/',random.choice(longwanglist)).cqcode
+    longwangs=[R.img('longwang/',x).cqcode for x in longwanglist]
+    longwangs.extend(['龙王出来挨透','龙王出来喷水'])
     if dragon_king==session.ctx['self_id']:
         session.finish(f'{longwangme}')
-    reply=random.choice([f'{longwang}','龙王出来挨透','龙王出来喷水'])
+    reply=random.choice(longwangs)
     session.finish(f'[CQ:at,qq={dragon_king}]\n{reply}')

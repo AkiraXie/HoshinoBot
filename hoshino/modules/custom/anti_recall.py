@@ -13,6 +13,6 @@ async def _(session):
                                                no_cache=True)
     user_card = user_dic['card'] if user_dic['card'] else user_dic['nickname']
     if oid==uid:
-        await session.bot.send_group_msg(message=f'{user_card}({uid})撤回消息:\n{msg}',group_id=gid,auto_escape=1)
+        await session.bot.send_group_msg(message=f'{user_card}({uid})撤回消息:\n{msg}',group_id=gid)
     else:
-        await session.bot.send_group_msg(message=f'管理员撤回了{user_card}({uid})的消息:\n{msg}',group_id=gid,auto_escape=1)
+        await session.bot.send_group_msg(message=f'管理员撤回了{user_card}({uid})的消息:\n{msg}',group_id=gid)
