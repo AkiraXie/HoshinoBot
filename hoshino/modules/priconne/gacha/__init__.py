@@ -77,8 +77,8 @@ def dump_user_collection(uid: str, ucollection):
 
 @sv.on_command('卡池资讯', deny_tip=GACHA_DISABLE_NOTICE, aliases=('查看卡池', '看看卡池', '康康卡池', '卡池資訊', '看看up', 'kkup','看看UP'), only_to_me=False,can_private=1)
 async def gacha_info(session):
-    gid = str(session.ctx['group_id']) if session.ctx['group_id'] else 0
-    gacha = Gacha(_group_pool[gid]) if gid!=0 else Gacha('MIX')
+    gid = session.ctx.get('group_id',0)
+    gacha = Gacha(_group_pool[str(gid)]) if gid!=0 else Gacha('MIX')
     up_chara = gacha.up
     if sv.bot.config.IS_CQPRO:
         up_chara = map(lambda x: str(
@@ -161,8 +161,8 @@ async def gacha_1(session):
     uid = str(session.ctx['user_id'])
     ucollection = load_user_collection(uid)
     uset = set(ucollection[uid])
-    gid = str(session.ctx['group_id']) if session.ctx['group_id'] else 0
-    gacha = Gacha(_group_pool[gid]) if gid!=0 else Gacha('MIX')
+    gid = session.ctx.get('group_id',0)
+    gacha = Gacha(_group_pool[str(gid)]) if gid!=0 else Gacha('MIX')
     chara, hiishi = gacha.gacha_one(
         gacha.up_prob, gacha.s3_prob, gacha.s2_prob)
     silence_time = hiishi * 60
@@ -186,8 +186,8 @@ async def gacha_10(session):
     uid = str(session.ctx['user_id'])
     ucollection = load_user_collection(uid)
     uset = set(ucollection[uid])
-    gid = str(session.ctx['group_id']) if session.ctx['group_id'] else 0
-    gacha = Gacha(_group_pool[gid]) if gid!=0 else Gacha('MIX')
+    gid = session.ctx.get('group_id',0)
+    gacha = Gacha(_group_pool[str(gid)]) if gid!=0 else Gacha('MIX')
     result, hiishi = gacha.gacha_ten()
     silence_time = hiishi * 6 if hiishi < SUPER_LUCKY_LINE else hiishi * 60
     for c in result:
@@ -224,8 +224,8 @@ async def gacha_300(session):
     uid = str(session.ctx['user_id'])
     ucollection = load_user_collection(uid)
     uset = set(ucollection[uid])
-    gid = str(session.ctx['group_id']) if session.ctx['group_id'] else 0
-    gacha = Gacha(_group_pool[gid]) if gid!=0 else Gacha('MIX')
+    gid = session.ctx.get('group_id',0)
+    gacha = Gacha(_group_pool[str(gid)]) if gid!=0 else Gacha('MIX')
     result,up = gacha.gacha_tenjou()
     s3 = len(result['s3'])
     s2 = len(result['s2'])
