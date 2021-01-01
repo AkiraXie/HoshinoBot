@@ -26,7 +26,7 @@ async def send_rank(bot, ctx,ser,pos):
     await bot.send(ctx,'\n'.join(msg))
     
     
-@sv.on_rex(r'^([台国b日])服?([前中后]{0,3})rank表?', normalize=True, event='group')
+@sv.on_rex(r'^([台国b日])服?([前中后]{0,3})rank表?', normalize=True, event='group',can_private=1)
 async def rank_sheet(bot, ctx, match):
     await send_rank(bot,ctx,match.group(1),match.group(2))
 
@@ -56,7 +56,7 @@ all_season[2001:4001] = 2
 all_season[4001:7999] = 1
 all_season[8100:15001:100] = 30
 
-@sv.on_command('挖矿计算', aliases=('挖矿', 'jjc钻石', '竞技场钻石', 'jjc钻石查询', '竞技场钻石查询'))
+@sv.on_command('挖矿计算', aliases=('挖矿', 'jjc钻石', '竞技场钻石', 'jjc钻石查询', '竞技场钻石查询'),can_private=1)
 async def arena_miner(session: CommandSession):
     try:
         rank = int(session.current_arg_text)
@@ -76,20 +76,20 @@ YUKARI_SHEET = f'''
 ※黄骑四号位例外较多
 ※对面羊驼或中后卫坦 有可能歪
 ※我方羊驼算一号位'''
-@sv.on_command('yukari_charge', aliases=('黄骑充电', '黄骑充电表', '酒鬼充电', '酒鬼充电表'))
+@sv.on_command('yukari_charge', aliases=('黄骑充电', '黄骑充电表', '酒鬼充电', '酒鬼充电表'),can_private=1)
 async def yukari(session: CommandSession):
     await session.send('图片较大，请稍等片刻',)
     await session.send(YUKARI_SHEET, at_sender=True)
     await util.silence(session.ctx, 60)
 
 
-@sv.on_command('star', aliases=('星级表', '升星表'))
+@sv.on_command('star', aliases=('星级表', '升星表'),can_private=1)
 async def star(session: CommandSession):
     await session.send(R.img('priconne/quick/star.jpg').cqcode, at_sender=True)
     await util.silence(session.ctx, 60)
 
 byk=R.img('priconne/quick/banyuekan.jpg')
-@sv.on_command('半月刊',aliases=('活动半月刊','b服半月刊','国服半月刊'))
+@sv.on_command('半月刊',aliases=('活动半月刊','b服半月刊','国服半月刊'),can_private=1)
 async def banyuekan(session):
     await session.send('图片较大，请稍等片刻')
     await session.send(f'{byk.cqcode}', at_sender=True)

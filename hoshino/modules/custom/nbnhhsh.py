@@ -4,7 +4,7 @@ import aiohttp
 sv = Service('nbnhhsh')
 
 
-@sv.on_rex(r'^[\?\？]{1,2} ?([a-z0-9]+)$', normalize=True, event='group')
+@sv.on_rex(r'^[\?\？]{1,2} ?([a-z0-9]+)$', normalize=True, event='group',can_private=1)
 async def hhsh(bot, ctx, match):
     async with aiohttp.TCPConnector(verify_ssl=False) as connector:
         async with aiohttp.request(

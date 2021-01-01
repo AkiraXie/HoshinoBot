@@ -1,6 +1,6 @@
 from hoshino import  Service,Privilege as Priv
 sv=Service('ocr',visible=False,enable_on_default=False,manage_priv=Priv.SUPERUSER)
-@sv.on_command('ocr',aliases=('识字','文字识别'))
+@sv.on_command('ocr',aliases=('识字','文字识别'),can_private=1)
 async def ooocr(session):
     msg=session.ctx['message']
     imglist=[
