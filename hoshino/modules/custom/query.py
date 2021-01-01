@@ -10,9 +10,9 @@ p6 = R.img('priconne/quick/bhou.png')
 p7 = R.img('priconne/quick/rqian.png')
 p8 = R.img('priconne/quick/rzhong.png')
 p9 = R.img('priconne/quick/rhou.png')
-brank=[p4,p5,p6]
-trank=[p1,p2,p3]
-rrank=[p7,p8,p9]
+brank=(p4,p5,p6)
+trank=(p1,p2,p3)
+rrank=(p7,p8,p9)
 posdic={"前":0,"中":1,"后":2}
 serdic={'b':brank,'国':brank,'台':trank,'日':rrank,'t':trank,'j':rrank}
 
