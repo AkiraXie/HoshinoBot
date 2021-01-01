@@ -17,16 +17,16 @@ posdic={"前":0,"中":1,"后":2}
 serdic={'b':brank,'国':brank,'台':trank,'日':rrank,'t':trank,'j':rrank}
 
 async def send_rank(bot, ctx,ser,pos):
-    msg=['Rank表仅供参考,具体以公会要求为准','不定期更新，来源见图']
+    msg=['Rank表仅供参考,以公会要求为准','不定期更新，来源见图']
     poslist=set([posdic[i] for i in pos]) if pos else [0,1,2]
-    serlist=serdic[ser]
-    for p in poslist:
-        msg.append(f'{serlist[p].cqcode}')
+    serlist=set([serdic[i] for i in ser])
+    for s in serlist:
+        msg.extend([s[p].cqcode for p in poslist])
     await bot.send(ctx, '图片较大，请稍等片刻')
     await bot.send(ctx,'\n'.join(msg))
     
     
-@sv.on_rex(r'^([台国b日])服?([前中后]{0,3})rank表?', normalize=True, event='group',can_private=1)
+@sv.on_rex(r'^([台国日btj]{1,3})服?([前中后]{0,3})rank表?', normalize=True, event='group',can_private=1)
 async def rank_sheet(bot, ctx, match):
     await send_rank(bot,ctx,match.group(1),match.group(2))
 
