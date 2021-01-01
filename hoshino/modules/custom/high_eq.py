@@ -26,5 +26,5 @@ async def high_eq(bot,ctx,match):
     img_p = Image.open(path)
     draw_text(img_p, left, 0)
     draw_text(img_p, right, 400)
-    await bot.send(f'[CQ:image,file={pic2b64(img_p)}]')
+    await bot.send(ctx,f'[CQ:image,file={pic2b64(img_p)}]')
 
