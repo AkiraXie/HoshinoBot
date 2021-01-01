@@ -263,11 +263,13 @@ class Service:
         return gl
 
 
-    def on_message(self, event='group') -> Callable:
+    def on_message(self, event='group',can_private=False) -> Callable:
+        if can_private:
+            event=None
         def deco(func: Callable[[NoneBot, Dict], Any]) -> Callable:
             @wraps(func)
             async def wrapper(ctx):
-                if self._check_all(ctx):
+                if self._check_all(ctx) or can_private:
                     try:
                         await func(self.bot, ctx)
                         # self.logger.info(f'Message {ctx["message_id"]} is handled by {func.__name__}.')
@@ -279,16 +281,17 @@ class Service:
             return self.bot.on_message(event)(wrapper)
         return deco
 
-    def on_keyword(self, keywords: Iterable, *, normalize=True, event='group') -> Callable:
+    def on_keyword(self, keywords: Iterable, *, normalize=True, event='group',can_private=False) -> Callable:
         if isinstance(keywords, str):
             keywords = (keywords, )
         if normalize:
             keywords = tuple(util.normalize_str(kw) for kw in keywords)
-
+        if can_private:
+            event=None
         def deco(func: Callable[[NoneBot, Dict], Any]) -> Callable:
             @wraps(func)
             async def wrapper(ctx):
-                if self._check_all(ctx):
+                if self._check_all(ctx) or can_private:
                     plain_text = ctx['message'].extract_plain_text()
                     if normalize:
                         plain_text = util.normalize_str(plain_text)
@@ -308,14 +311,15 @@ class Service:
         return deco
 
 
-    def on_rex(self, rex, normalize=True, event='group') -> Callable:
+    def on_rex(self, rex, normalize=True, event='group',can_private=False) -> Callable:
         if isinstance(rex, str):
             rex = re.compile(rex)
-
+        if can_private:
+            event=None
         def deco(func: Callable[[NoneBot, Dict, re.Match], Any]) -> Callable:
             @wraps(func)
             async def wrapper(ctx):
-                if self._check_all(ctx):
+                if self._check_all(ctx) or can_private:
                     plain_text = ctx['message'].extract_plain_text()
                     plain_text = plain_text.strip()
                     if normalize:
@@ -336,24 +340,37 @@ class Service:
         return deco
 
 
-    def on_command(self, name, *, only_to_me=False, perm=None,deny_tip=None, **kwargs) -> Callable:
+    def on_command(self, name, *, only_to_me=False, perm=None,deny_tip=None,can_private=False, **kwargs) -> Callable:
         kwargs['only_to_me'] = only_to_me
         perm = self.use_priv if perm is None else perm
         def deco(func: Callable[[CommandSession], Any]) -> Callable:
             @wraps(func)
             async def wrapper(session: CommandSession):
-                if session.ctx['message_type'] != 'group':
-                    return
-                if not self.check_enabled(session.ctx['group_id']):
-                    self.logger.debug(
-                        f'Message {session.ctx["message_id"]} is command of a disabled service, ignored.')
-                    if deny_tip:
-                        session.finish(deny_tip, at_sender=True)
-                    return
-                if not self.check_priv(session.ctx,perm) :
-                    session.finish("您的权限不足", at_sender=True)
-                    return
-                if self._check_all(session.ctx):
+                if session.ctx['message_type'] == 'group':
+                    if not self.check_enabled(session.ctx['group_id']):
+                        self.logger.debug(
+                            f'Message {session.ctx["message_id"]} is command of a disabled service, ignored.')
+                        if deny_tip:
+                            session.finish(deny_tip, at_sender=True)
+                        return
+                    if not self.check_priv(session.ctx,perm) :
+                        session.finish("您的权限不足", at_sender=True)
+                        return
+                    if self._check_all(session.ctx):
+                        try:
+                            await func(session)
+                            self.logger.info(
+                                f'Message {session.ctx["message_id"]} is handled as command by {func.__name__}.')
+                        except (_PauseException, _FinishException, SwitchException) as e:
+                            raise e
+                        except Exception as e:
+                            self.logger.exception(e)
+                            self.logger.error(
+                                f'{type(e)} occured when {func.__name__} handling message {session.ctx["message_id"]}.')
+                        return
+                else:
+                    if not can_private:
+                        return
                     try:
                         await func(session)
                         self.logger.info(

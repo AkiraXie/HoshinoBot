@@ -4,7 +4,7 @@ from saucenao_api import SauceNao
 sv = Service('saucenao',visible=False,manage_priv=Priv.SUPERUSER,enable_on_default=False)
 
 
-@sv.on_command('搜索图片',aliases=('识图','搜图'))
+@sv.on_command('搜索图片',aliases=('识图','搜图'),can_private=1)
 async def searchpic(session):
     piclist=session.current_arg_images
     if len(piclist)==0:

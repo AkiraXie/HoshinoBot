@@ -4,7 +4,7 @@ from hoshino import Service
 sv = Service('chooseone')
 
 
-@sv.on_message('group')
+@sv.on_message('group',can_private=1)
 async def chooseone(bot, ctx):
     message = ctx['raw_message']
     if message.startswith('选择卡池'):

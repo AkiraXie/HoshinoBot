@@ -45,7 +45,7 @@ async def huhuhu(session: CommandSession):
     await session.send(huhu)
 
 
-@sv1.on_keyword(('服了', '我服了'))
+@sv1.on_keyword(('我服了'))
 async def fule(bot, ctx):
     a = random.randint(1, 100)
     if a <= 15:
