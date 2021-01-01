@@ -311,7 +311,7 @@ class Service:
         return deco
 
 
-    def on_rex(self, rex, normalize=True, event='group',,can_private=False) -> Callable:
+    def on_rex(self, rex, normalize=True, event='group',can_private=False) -> Callable:
         if isinstance(rex, str):
             rex = re.compile(rex)
         if can_private:
