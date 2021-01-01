@@ -21,7 +21,7 @@ async def high_eq(bot,ctx,match):
     left = match.group(1).strip()
     right = match.group(2).strip()
     if len(left) > 15 or len(right) > 15:
-        await bot.send("为了图片质量，请不要多于15个字符")
+        await bot.send(ctx,"为了图片质量，请不要多于15个字符")
         return
     img_p = Image.open(path)
     draw_text(img_p, left, 0)
