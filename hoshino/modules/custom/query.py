@@ -21,7 +21,7 @@ async def send_rank(bot, ctx,ser,pos):
     poslist=set([posdic[i] for i in pos]) if pos else [0,1,2]
     serlist=set([serdic[i] for i in ser])
     for s in serlist:
-        msg.extend([s[p].cqcode for p in poslist])
+        msg.extend([f'{s[p].cqcode}' for p in poslist])
     await bot.send(ctx, '图片较大，请稍等片刻')
     await bot.send(ctx,'\n'.join(msg))
     
