@@ -1,5 +1,5 @@
-nonebot[scheduler]~=1.5.0
-aiocqhttp~=1.2.5
+nonebot[scheduler]
+aiocqhttp
 lxml>=4.4.1
 pytz>=2019.3
 requests>=2.22.0
@@ -14,4 +14,6 @@ brotli
 peewee
 aiohttp
 saucenao_api
-feedparser
+websocket-client
+logzero
+demjson

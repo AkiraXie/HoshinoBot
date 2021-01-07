@@ -10,12 +10,14 @@ async def ooocr(session):
     ]
     if not imglist:
         return
-    count=1
-    for i in imglist:
-        res=await session.bot.call_action(action='.ocr_image',image=i)
-        reply=[f'第{count}张图片的ocr结果是:']
+    for count,i in enumerate(imglist):
+        try:
+            res=await session.bot.ocr_image(image=i)
+        except:
+            session.finish('请求ocrAPI失败')
+        reply=[f'第{count+1}张图片的ocr结果是:']
         texts=res['texts']
         for t in texts:     
             reply.append(t['text'])
-        await session.send('\n'.join(reply),at_sender=True)
-        count+=1
+        await session.send('/'.join(reply),at_sender=True)
+        

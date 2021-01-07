@@ -1,8 +1,4 @@
 import time
-import re
-import hashlib
-import os
-import requests
 from .data import Question
 from hoshino import Service, Privilege as Priv, CommandSession
 answers = {}

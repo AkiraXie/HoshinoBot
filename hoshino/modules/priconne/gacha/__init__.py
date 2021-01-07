@@ -1,5 +1,4 @@
 import os
-import random
 from collections import defaultdict
 try:
     import ujson as json
@@ -11,7 +10,7 @@ from hoshino import MessageSegment, Service, Privilege as Priv, aiorequests
 from hoshino.util import silence, concat_pic, pic2b64, DailyNumberLimiter
 
 from .gacha import Gacha
-from ..chara import Chara,reload_pcrdata,reload_config,reload_data
+from ..chara import Chara
 
 sv = Service('gacha')
 jewel_limit = DailyNumberLimiter(7500)

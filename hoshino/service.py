@@ -494,4 +494,4 @@ def sucmd(name, force_private=True, **kwargs) -> Callable:
     return deco
 
 
-__all__ = ('Service', 'Privilege')
+__all__ = ('Service', 'Privilege','sumd','scheduled_job')
