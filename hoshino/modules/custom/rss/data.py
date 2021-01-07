@@ -3,7 +3,7 @@ import re
 from typing import List, Dict, Optional
 from lxml import etree
 import peewee as pw
-from hoshino import aiorequests
+from hoshino import aiohttprequest
 BASE_URL = "https://rsshub.akiraxie.me/"
 
 class Rss():
@@ -16,8 +16,8 @@ class Rss():
     @property
     async def xml(self):
         try:
-            ret = await aiorequests.get(self.url, params={'limit': self.limit})
-            return etree.XML(await ret.content)
+            ret = await aiohttprequest.get(self.url, params={'limit': self.limit})
+            return etree.XML(await ret.read())
         except:
             raise
 

@@ -7,7 +7,7 @@ try:
 except:
     import json
 
-from hoshino import aiorequests, util
+from hoshino import aiohttprequest, util
 from . import sv
 from ..chara import Chara
 
@@ -92,7 +92,7 @@ async def do_query(id_list, user_id, region=1):
     payload = {"_sign": "a", "def": id_list, "nonce": "a", "page": 1, "sort": 1, "ts": int(time.time()), "region": region}
     logger.debug(f'Arena query {payload=}')
     try:
-        resp = await aiorequests.post('https://api.pcrdfans.com/x/v1/search', timeout=5,headers=header, json=payload)
+        resp = await aiohttprequest.post('https://api.pcrdfans.com/x/v1/search', timeout=5,headers=header, json=payload)
         res = await resp.json()
         logger.debug(f'len(res)={len(res)}')
     except Exception as e:

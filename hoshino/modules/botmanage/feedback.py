@@ -1,11 +1,11 @@
-from nonebot import on_command, CommandSession, permission as perm
+from hoshino import Service,CommandSession,Privilege as Priv
 from hoshino.util import DailyNumberLimiter
 
 _max = 1
 _lmt = DailyNumberLimiter(_max)
 EXCEED_NOTICE = f'您今天已经喝过{_max}杯了，请明早5点后再来！'
-
-@on_command('来杯咖啡', permission=perm.GROUP)
+sv=Service('feedback',enable_on_default=True,visible=False,manage_priv=Priv.SUPERUSER)
+@sv.on_command('来杯咖啡')
 async def feedback(session:CommandSession):
     uid = session.ctx['user_id']
     if not _lmt.check(uid):

@@ -2,7 +2,7 @@ import asyncio
 import time
 from datetime import datetime, timedelta
 from .data import Rss, Rssdata, BASE_URL
-from hoshino import Service, Privilege as Priv, CommandSession, aiorequests
+from hoshino import Service, Privilege as Priv, CommandSession, aiohttprequest
 sv = Service('rss', manage_priv=Priv.ADMIN,
              enable_on_default=False, visible=False)
 
@@ -26,12 +26,12 @@ async def addrss(session: CommandSession):
     route = route.strip('/')
     url = BASE_URL+route
     try:
-        stats = await aiorequests.head(url)
+        stats = await aiohttprequest.head(url)
     except Exception as e:
         sv.logger.exception(e)
         sv.logger.error(type(e))
         session.finish('请求路由失败,请稍后再试')
-    if stats.status_code != 200:
+    if stats.status != 200:
         session.finish('输入路由无效')
     rss = Rss(route)
     try:
