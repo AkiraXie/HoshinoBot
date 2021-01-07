@@ -17,3 +17,4 @@ saucenao_api
 websocket-client
 logzero
 demjson
+ujson
