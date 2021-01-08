@@ -6,7 +6,7 @@ from typing import List, Dict, Optional
 import feedparser
 from feedparser import FeedParserDict
 import peewee as pw
-from hoshino import aiohttprequest
+from hoshino import aiorequests
 BASE_URL = "https://rsshub.akiraxie.me/"
 
 
@@ -18,8 +18,8 @@ class Rss:
         
     @property
     async def feed(self) -> FeedParserDict:
-        ret = await aiohttprequest.get(self.url, params={'limit': self.limit,'timeout':5})
-        return feedparser.parse(await ret.read())
+        ret = await aiorequests.get(self.url, params={'limit': self.limit,'timeout':5})
+        return feedparser.parse(await ret.content)
 
     @property
     async def feed_entries(self) -> Optional[List]:

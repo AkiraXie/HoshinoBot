@@ -1,4 +1,4 @@
-from hoshino import aiohttprequest, aiorequests
+from hoshino import aiorequests
 import json
 import brotli
 import time
@@ -37,18 +37,18 @@ regiondic={'bili':bililist,'tw':twlist,'jp':jplist}
 
 async def updateDB(sv: Service, serid:str):
     ls=regiondic[serid]
-    ver_res =await aiohttprequest.get(ls[1])
-    if ver_res.status != 200:
+    ver_res =await aiorequests.get(ls[1])
+    if ver_res.status_code != 200:
         sv.logger.warning('连接服务器失败')
         return
-    ver_get=await ver_res.read()
+    ver_get=await ver_res.content
     ver = json.loads(ver_get)
     ver_path = ls[3]
-    db_res =await aiohttprequest.get(ls[0])
-    if db_res.status != 200:
+    db_res =await aiorequests.get(ls[0])
+    if db_res.status_code != 200:
         sv.logger.warning('连接服务器失败')
         return
-    data_get =await db_res.read()
+    data_get =await db_res.content
     data = brotli.decompress(data_get)
     db_path = ls[2]
     with open(db_path, 'wb') as dbfile:
@@ -69,11 +69,11 @@ async def check_ver(sv: Service, serid:str):
         sv.logger.warning(f'未发现{serid}数据库,将会稍后创建')
         await updateDB(sv, serid)
         return 0
-    ver_res = await aiohttprequest.get(ls[1])
-    if ver_res.status != 200:
+    ver_res = await aiorequests.get(ls[1])
+    if ver_res.status_code != 200:
         sv.logger.warning('连接服务器失败')
         return -1
-    ver_get = await ver_res.read()
+    ver_get = await ver_res.content
     online_ver = json.loads(ver_get)
     if local_ver == online_ver:
         sv.logger.info(f'未发现{serid}数据库更新')

@@ -1,5 +1,4 @@
 from hoshino import  Service,Privilege as Priv
-import re
 sv=Service('anti_group_recall',visible=False,enable_on_default=False,manage_priv=Priv.SUPERUSER)
 @sv.on_notice('group_recall')
 async def _(session):

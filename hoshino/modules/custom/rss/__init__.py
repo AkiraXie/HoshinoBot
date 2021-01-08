@@ -1,7 +1,7 @@
 import asyncio
 from nonebot.argparse import ArgumentParser
 from .data import Rss, Rssdata, BASE_URL
-from hoshino import Service, Privilege as Priv, CommandSession, aiohttprequest
+from hoshino import Service, Privilege as Priv, CommandSession, aiorequests
 sv = Service('rss', manage_priv=Priv.ADMIN,
              enable_on_default=False, visible=False)
 
@@ -16,12 +16,12 @@ async def addrss(session: CommandSession):
     name = args.name
     url = BASE_URL+args.url if args.rsshub else args.url
     try:
-        stats = await aiohttprequest.head(url,timeout=5,allow_redirects=True)
+        stats = await aiorequests.head(url,timeout=5,allow_redirects=True)
     except Exception as e:
         sv.logger.exception(e)
         sv.logger.error(type(e))
         session.finish('请求路由失败,请稍后再试')
-    if stats.status != 200:
+    if stats.status_code != 200:
         session.finish('请求路由失败,请检查路由状态')
     rss = Rss(url)
     if not await rss.has_entries:
