@@ -18,3 +18,4 @@ websocket-client
 logzero
 demjson
 ujson
+feedparser

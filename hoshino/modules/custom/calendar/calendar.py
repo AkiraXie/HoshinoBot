@@ -27,7 +27,7 @@ jplist = [jp_url, jp_verurl, jp_db, jp_ver,"日服日程"]
 # tw(sonet f**k you!)
 # 台服api由tngsohack提供，感谢！
 tw_url= 'https://api.redive.lolikon.icu/br/redive_tw.db.br'
-tw_verurl='https://api.redive.lolikon.icu//json/lastver_tw.json'
+tw_verurl='https://api.redive.lolikon.icu/json/lastver_tw.json'
 tw_db = os.path.join(_resource_path, 'redive_tw.db')
 tw_ver = os.path.join(_resource_path, 'tw_ver.json')
 twlist = [tw_url, tw_verurl, tw_db, tw_ver,"台服日程"]
@@ -45,7 +45,7 @@ async def updateDB(sv: Service, serid:str):
     ver = json.loads(ver_get)
     ver_path = ls[3]
     db_res =await aiohttprequest.get(ls[0])
-    if db_res.status_code != 200:
+    if db_res.status != 200:
         sv.logger.warning('连接服务器失败')
         return
     data_get =await db_res.read()

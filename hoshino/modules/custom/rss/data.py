@@ -1,49 +1,72 @@
+import logging
 import os
-import re
+import time
+from datetime import datetime, timedelta
 from typing import List, Dict, Optional
-from lxml import etree
+import feedparser
+from feedparser import FeedParserDict
 import peewee as pw
 from hoshino import aiohttprequest
 BASE_URL = "https://rsshub.akiraxie.me/"
 
-class Rss():
-    def __init__(self, route: str, limit: int = 5) -> None:
+
+class Rss:
+    def __init__(self, url: str, limit: int = 5) -> None:
         super().__init__()
-        self.route = route
-        self.url=BASE_URL+self.route
+        self.url = url
         self.limit = limit
+        
+    @property
+    async def feed(self) -> FeedParserDict:
+        ret = await aiohttprequest.get(self.url, params={'limit': self.limit,'timeout':5})
+        return feedparser.parse(await ret.read())
 
     @property
-    async def xml(self):
-        try:
-            ret = await aiohttprequest.get(self.url, params={'limit': self.limit})
-            return etree.XML(await ret.read())
-        except:
-            raise
+    async def feed_entries(self) -> Optional[List]:
+        feed = await self.feed
+        if len(feed.entries) != 0:
+            return feed.entries
+        else:
+            return
+
+    @property
+    async def has_entries(self) -> bool:
+        return (await self.feed_entries) is not None
 
     @staticmethod
-    def _get_rssdic(item) -> Dict:
-        ret = {'title': item.find('.title').text.strip(),
-               'link': item.find('.link').text.strip(),
-               'publish': item.find('.pubDate').text.strip()}
+    def format_time(timestr: str) -> str:
+        try:
+            struct_time = time.strptime(timestr, '%a, %d %b %Y %H:%M:%S %Z')
+        except:
+            struct_time = time.strptime(timestr, '%Y-%m-%dT%H:%M:%SZ')
+        dt = datetime.fromtimestamp(time.mktime(struct_time))
+        return str(dt+timedelta(hours=8))
+
+    @staticmethod
+    def _get_rssdic(entry: FeedParserDict) -> Dict:
+        ret = {'标题': entry.title,
+               '时间': entry.updated,
+               '链接': entry.link, }
+        try:
+            ret['时间'] = Rss.format_time(ret['时间'])
+        except:
+            pass
         return ret
 
-    async def get_new_item_info(self) -> Optional[Dict]:
+    async def get_new_entry_info(self) -> Optional[Dict]:
         try:
-            xml = await self.xml
-            item = xml.xpath('/rss/channel/item')[0]
-            return self._get_rssdic(item)
+            entries = await self.feed_entries
+            return Rss._get_rssdic(entries[0])
         except:
             return None
 
-    async def get_all_item_info(self) -> Optional[List[Dict]]:
+    async def get_all_entry_info(self) -> Optional[List[Dict]]:
         try:
             ret = []
-            xml = await self.xml
-            items = xml.xpath('/rss/channel/item')
-            for item in items:
-                itemdic = self._get_rssdic(item)
-                ret.append(itemdic)
+            entries = await self.feed_entries
+            for entry in entries:
+                entrydic = self._get_rssdic(entry)
+                ret.append(entrydic)
             return ret
         except:
             return None
@@ -51,27 +74,29 @@ class Rss():
     @property
     async def last_update(self) -> Optional[str]:
         try:
-            return (await self.get_new_item_info())['publish']
+            return (await self.get_new_entry_info())['时间']
         except:
             return None
 
 
 db = pw.SqliteDatabase(
-    os.path.join(os.path.dirname(__file__), 'rss.db')
+    os.path.join(os.path.dirname(__file__), 'rssdata.db')
 )
 
 
 class Rssdata(pw.Model):
-    route = pw.TextField()
+    url = pw.TextField()
     name = pw.TextField()
     date = pw.TextField()
     group = pw.IntegerField()
+
     class Meta:
         database = db
-        primary_key = pw.CompositeKey( 'group','route')
+        primary_key = pw.CompositeKey('url', 'group')
+
 
 def init():
-    if not os.path.exists(os.path.join(os.path.dirname(__file__), 'rss.db')):
+    if not os.path.exists(os.path.join(os.path.dirname(__file__), 'rssdata.db')):
         db.connect()
         db.create_tables([Rssdata])
         db.close()

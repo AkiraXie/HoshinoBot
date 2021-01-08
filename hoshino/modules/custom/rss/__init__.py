@@ -1,41 +1,33 @@
 import asyncio
-import time
-from datetime import datetime, timedelta
+from nonebot.argparse import ArgumentParser
 from .data import Rss, Rssdata, BASE_URL
 from hoshino import Service, Privilege as Priv, CommandSession, aiohttprequest
 sv = Service('rss', manage_priv=Priv.ADMIN,
              enable_on_default=False, visible=False)
 
 
-def format_time(timestr: str) -> str:
-    struct_time = time.strptime(timestr, '%a, %d %b %Y %H:%M:%S %Z')
-    dt = datetime.fromtimestamp(time.mktime(struct_time))
-    return str(dt+timedelta(hours=8))
-
-
-@sv.on_command('添加订阅', aliases=('addrss', '增加订阅'))
+@sv.on_command('添加订阅', aliases=('addrss', '增加订阅'), shell_like=True)
 async def addrss(session: CommandSession):
+    parser = ArgumentParser(session=session)
+    parser.add_argument('name')
+    parser.add_argument('url')
+    parser.add_argument('-r', '--rsshub', action='store_true')
+    args = parser.parse_args(session.argv)
+    name = args.name
+    url = BASE_URL+args.url if args.rsshub else args.url
     try:
-        msgs = session.current_arg_text.split()
-    except:
-        return
-    if len(msgs) != 2:
-        return
-    name, route = msgs
-    name = name.strip()
-    route = route.strip('/')
-    url = BASE_URL+route
-    try:
-        stats = await aiohttprequest.head(url)
+        stats = await aiohttprequest.head(url,timeout=5,allow_redirects=True)
     except Exception as e:
         sv.logger.exception(e)
         sv.logger.error(type(e))
         session.finish('请求路由失败,请稍后再试')
     if stats.status != 200:
-        session.finish('输入路由无效')
-    rss = Rss(route)
+        session.finish('请求路由失败,请检查路由状态')
+    rss = Rss(url)
+    if not await rss.has_entries:
+        session.finish('暂不支持该RSS')
     try:
-        Rssdata.replace(route=rss.route, name=name, group=session.event.group_id, date=await rss.last_update).execute()
+        Rssdata.replace(url=rss.url, name=name, group=session.event.group_id, date=await rss.last_update).execute()
     except Exception as e:
         sv.logger.exception(e)
         sv.logger.error(type(e))
@@ -60,26 +52,25 @@ async def delrss(session: CommandSession):
     session.finish(f'删除订阅{name}成功')
 
 
-@sv.scheduled_job('cron', minute='*/15', jitter=20)
+@sv.scheduled_job('cron', minute='*/12', jitter=20)
 async def push_rss():
     bot = sv.bot
     glist = await sv.get_enable_groups()
     for gid in glist.keys():
-        res = Rssdata.select(Rssdata.route, Rssdata.name,
+        res = Rssdata.select(Rssdata.url, Rssdata.name,
                              Rssdata.date).where(Rssdata.group == gid)
         for r in res:
-            rss = Rss(r.route)
+            rss = Rss(r.url)
             if lstdate := (await rss.last_update) != r.date:
                 try:
                     await asyncio.sleep(0.5)
-                    newinfo = await rss.get_new_item_info()
+                    newinfo = await rss.get_new_entry_info()
                     msg = [f'订阅 {r.name} 更新啦！']
-                    msg.append(f'标题: {newinfo["title"]}')
-                    msg.append(f'链接: {newinfo["link"]}')
-                    msg.append(f'时间: {format_time(newinfo["publish"])}')
+                    for k, v in newinfo.items():
+                        msg.append(f'{k}: {v}')
                     Rssdata.update(date=lstdate).where(
                         Rssdata.group == gid, Rssdata.name == r.name)
-                    bot.send_group_msg(message='\n'.join(msg), group_id=gid)
+                    await bot.send_group_msg(message='\n'.join(msg), group_id=gid)
                 except Exception as e:
                     sv.logger.exception(e)
                     sv.logger.error(f'{type(e)} occured when pushing rss')
@@ -88,11 +79,11 @@ async def push_rss():
 @sv.on_command('订阅列表', aliases=('查看本群订阅'))
 async def lookrsslist(session: CommandSession):
     try:
-        res = Rssdata.select(Rssdata.route, Rssdata.name).where(Rssdata.group ==
-                                                                session.event.group_id)
+        res = Rssdata.select(Rssdata.url, Rssdata.name).where(Rssdata.group ==
+                                                              session.event.group_id)
         msg = ['本群订阅如下:']
         for r in res:
-            msg.append(f'订阅标题:{r.name}  订阅路由:{r.route}')
+            msg.append(f'订阅标题:{r.name}  订阅路由:{r.url}')
     except Exception as e:
         sv.logger.exception(e)
         sv.logger.error(type(e))
@@ -107,19 +98,18 @@ async def lookrss(session: CommandSession):
     except:
         return
     try:
-        res = Rssdata.select(Rssdata.route).where(Rssdata.name == name, Rssdata.group ==
-                                                  session.event.group_id)
+        res = Rssdata.select(Rssdata.url).where(Rssdata.name == name, Rssdata.group ==
+                                                session.event.group_id)
         r = res[0]
-        rss = Rss(r.route)
-        infolist = await rss.get_all_item_info()
+        rss = Rss(r.url)
+        infolist = await rss.get_all_entry_info()
     except Exception as e:
         sv.logger.exception(e)
         sv.logger.error(type(e))
         session.finish(f'查订阅{name}失败')
     msg = [f'{name}的最近记录:']
     for info in infolist:
-        msg.append(f'标题: {info["title"]}')
-        msg.append(f'链接: {info["link"]}')
-        msg.append(f'时间: {format_time(info["publish"])}')
+        for k, v in info.items():
+            msg.append(f'{k}: {v}')
         msg.append('==========')
     session.finish('\n'.join(msg))
