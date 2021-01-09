@@ -1,4 +1,3 @@
-import logging
 import os
 import time
 from datetime import datetime, timedelta
@@ -6,20 +5,20 @@ from typing import List, Dict, Optional
 import feedparser
 from feedparser import FeedParserDict
 import peewee as pw
-from hoshino import aiorequests
+from hoshino.aiohttpx import get
 BASE_URL = "https://rsshub.akiraxie.me/"
 
 
 class Rss:
-    def __init__(self, url: str, limit: int = 5) -> None:
+    def __init__(self, url: str, limit: int = 1) -> None:
         super().__init__()
         self.url = url
         self.limit = limit
         
     @property
     async def feed(self) -> FeedParserDict:
-        ret = await aiorequests.get(self.url, params={'limit': self.limit,'timeout':5})
-        return feedparser.parse(await ret.content)
+        ret = await get(self.url, params={'limit': self.limit,'timeout':5})
+        return feedparser.parse(ret.content)
 
     @property
     async def feed_entries(self) -> Optional[List]:

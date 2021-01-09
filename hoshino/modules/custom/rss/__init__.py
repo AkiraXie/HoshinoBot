@@ -1,7 +1,7 @@
 import asyncio
 from nonebot.argparse import ArgumentParser
 from .data import Rss, Rssdata, BASE_URL
-from hoshino import Service, Privilege as Priv, CommandSession, aiorequests
+from hoshino import Service, Privilege as Priv, CommandSession,aiohttpx
 sv = Service('rss', manage_priv=Priv.ADMIN,
              enable_on_default=False, visible=False)
 
@@ -16,7 +16,7 @@ async def addrss(session: CommandSession):
     name = args.name
     url = BASE_URL+args.url if args.rsshub else args.url
     try:
-        stats = await aiorequests.head(url,timeout=5,allow_redirects=True)
+        stats = await aiohttpx.head(url,timeout=5,allow_redirects=True)
     except Exception as e:
         sv.logger.exception(e)
         sv.logger.error(type(e))
@@ -61,6 +61,8 @@ async def push_rss():
                              Rssdata.date).where(Rssdata.group == gid)
         for r in res:
             rss = Rss(r.url)
+            if not (await rss.has_entries):
+                continue
             if lstdate := (await rss.last_update) != r.date:
                 try:
                     await asyncio.sleep(0.5)
@@ -91,17 +93,19 @@ async def lookrsslist(session: CommandSession):
     session.finish('\n'.join(msg))
 
 
-@sv.on_command('看订阅', aliases=('查订阅', '查看订阅'))
+@sv.on_command('看订阅', aliases=('查订阅', '查看订阅'), shell_like=True)
 async def lookrss(session: CommandSession):
-    try:
-        name = session.current_arg_text
-    except:
-        return
+    parser = ArgumentParser(session=session)
+    parser.add_argument('name')
+    parser.add_argument('-l','--limit',default=5,type=int)
+    args=parser.parse_args(session.argv)
+    limit=args.limit 
+    name=args.name
     try:
         res = Rssdata.select(Rssdata.url).where(Rssdata.name == name, Rssdata.group ==
                                                 session.event.group_id)
         r = res[0]
-        rss = Rss(r.url)
+        rss = Rss(r.url,limit)
         infolist = await rss.get_all_entry_info()
     except Exception as e:
         sv.logger.exception(e)
