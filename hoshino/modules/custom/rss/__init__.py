@@ -1,8 +1,9 @@
 import asyncio
 from nonebot.argparse import ArgumentParser
+from nonebot import CommandSession
 from .data import Rss, Rssdata, BASE_URL
-from hoshino import Service, Privilege as Priv, CommandSession, aiohttpx
-sv = Service('rss', manage_priv=Priv.ADMIN,
+from hoshino import Service, aiohttpx
+sv = Service('rss',
              enable_on_default=False, visible=False)
 
 

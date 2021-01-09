@@ -63,7 +63,8 @@ class Rss:
         try:
             ret = []
             entries = await self.feed_entries
-            for entry in entries:
+            lmt = min(self.limit,len(entries))
+            for entry in entries[:lmt]:
                 entrydic = self._get_rssdic(entry)
                 ret.append(entrydic)
             return ret
