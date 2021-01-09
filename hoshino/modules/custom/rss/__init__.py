@@ -1,7 +1,7 @@
 import asyncio
 from nonebot.argparse import ArgumentParser
 from .data import Rss, Rssdata, BASE_URL
-from hoshino import Service, Privilege as Priv, CommandSession,aiohttpx
+from hoshino import Service, Privilege as Priv, CommandSession, aiohttpx
 sv = Service('rss', manage_priv=Priv.ADMIN,
              enable_on_default=False, visible=False)
 
@@ -16,7 +16,7 @@ async def addrss(session: CommandSession):
     name = args.name
     url = BASE_URL+args.url if args.rsshub else args.url
     try:
-        stats = await aiohttpx.head(url,timeout=5,allow_redirects=True)
+        stats = await aiohttpx.head(url, timeout=5, allow_redirects=True)
     except Exception as e:
         sv.logger.exception(e)
         sv.logger.error(type(e))
@@ -52,7 +52,7 @@ async def delrss(session: CommandSession):
     session.finish(f'删除订阅{name}成功')
 
 
-@sv.scheduled_job('cron', minute='*/12', jitter=20)
+@sv.scheduled_job('cron', minute='*/6', jitter=20)
 async def push_rss():
     bot = sv.bot
     glist = await sv.get_enable_groups()
@@ -63,7 +63,7 @@ async def push_rss():
             rss = Rss(r.url)
             if not (await rss.has_entries):
                 continue
-            if lstdate := (await rss.last_update) != r.date:
+            if (lstdate := await rss.last_update) != r.date:
                 try:
                     await asyncio.sleep(0.5)
                     newinfo = await rss.get_new_entry_info()
@@ -71,7 +71,7 @@ async def push_rss():
                     for k, v in newinfo.items():
                         msg.append(f'{k}: {v}')
                     Rssdata.update(date=lstdate).where(
-                        Rssdata.group == gid, Rssdata.name == r.name)
+                        Rssdata.group == gid, Rssdata.name == r.name,Rssdata.url==r.url).execute()
                     await bot.send_group_msg(message='\n'.join(msg), group_id=gid)
                 except Exception as e:
                     sv.logger.exception(e)
@@ -97,15 +97,15 @@ async def lookrsslist(session: CommandSession):
 async def lookrss(session: CommandSession):
     parser = ArgumentParser(session=session)
     parser.add_argument('name')
-    parser.add_argument('-l','--limit',default=5,type=int)
-    args=parser.parse_args(session.argv)
-    limit=args.limit 
-    name=args.name
+    parser.add_argument('-l', '--limit', default=5, type=int)
+    args = parser.parse_args(session.argv)
+    limit = args.limit
+    name = args.name
     try:
         res = Rssdata.select(Rssdata.url).where(Rssdata.name == name, Rssdata.group ==
                                                 session.event.group_id)
         r = res[0]
-        rss = Rss(r.url,limit)
+        rss = Rss(r.url, limit)
         infolist = await rss.get_all_entry_info()
     except Exception as e:
         sv.logger.exception(e)
