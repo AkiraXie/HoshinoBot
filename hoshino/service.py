@@ -244,7 +244,10 @@ class Service:
 
     def _check_all(self, ctx):
         gid = ctx.get('group_id', 0)
-        return self.check_enabled(gid) and not self.check_block_group(gid) and self.check_priv(ctx)
+        if gid !=0:
+            return self.check_enabled(gid) and not self.check_block_group(gid) and self.check_priv(ctx)
+        else:
+            return ctx.get('can_private')
 
     async def get_enable_groups(self) -> dict:
         """
@@ -263,13 +266,14 @@ class Service:
         return gl
 
 
-    def on_message(self, event='group',can_private=False) -> Callable:
+    def on_message(self, event='group',can_private:bool=False) -> Callable:
         if can_private:
             event=None
         def deco(func: Callable[[NoneBot, Dict], Any]) -> Callable:
             @wraps(func)
             async def wrapper(ctx):
-                if self._check_all(ctx) or can_private:
+                ctx['can_private']=can_private
+                if self._check_all(ctx):
                     try:
                         await func(self.bot, ctx)
                         # self.logger.info(f'Message {ctx["message_id"]} is handled by {func.__name__}.')
@@ -291,7 +295,8 @@ class Service:
         def deco(func: Callable[[NoneBot, Dict], Any]) -> Callable:
             @wraps(func)
             async def wrapper(ctx):
-                if self._check_all(ctx) or can_private:
+                ctx['can_private']=can_private
+                if self._check_all(ctx):
                     plain_text = ctx['message'].extract_plain_text()
                     if normalize:
                         plain_text = util.normalize_str(plain_text)
@@ -319,7 +324,8 @@ class Service:
         def deco(func: Callable[[NoneBot, Dict, re.Match], Any]) -> Callable:
             @wraps(func)
             async def wrapper(ctx):
-                if self._check_all(ctx) or can_private:
+                ctx['can_private']=can_private
+                if self._check_all(ctx):
                     plain_text = ctx['message'].extract_plain_text()
                     plain_text = plain_text.strip()
                     if normalize:

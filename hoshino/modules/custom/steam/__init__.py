@@ -1,3 +1,4 @@
+from typing import Iterable
 from lxml import etree
 import json
 import os
@@ -26,6 +27,13 @@ async def format_id(id:str)->str:
 async def steam(session: CommandSession):
     account = session.current_arg_text.strip()
     try:
+        rsp = await get_account_status(account)
+        if rsp["personaname"] == "":
+            await session.send("查询失败！")
+        elif rsp["gameextrainfo"] == "":
+            await session.send(f"%s 没在玩游戏！" % rsp["personaname"])
+        else:
+            await session.send(f"%s 正在玩 %s ！" % (rsp["personaname"], rsp["gameextrainfo"]))
         await update_steam_ids(account, session.event["group_id"])
         await session.send("订阅成功")
     except:
@@ -120,21 +128,22 @@ async def del_steam_ids(steam_id, group):
     await update_game_status()
 
 
-@sv.scheduled_job('cron', minute='*/5')
+@sv.scheduled_job('cron', minute='*/2')
 async def check_steam_status():
     old_state = playing_state.copy()
     await update_game_status()
     for key, val in playing_state.items():
         if val["gameextrainfo"] != old_state[key]["gameextrainfo"]:
+            glist=set(sub["subscribes"][key])&set((await sv.get_enable_groups()).keys())
             if val["gameextrainfo"] == "":
-                await broadcast(sub["subscribes"][key],
+                await broadcast(glist,
                                 "%s 不玩 %s 了！" % (val["personaname"], old_state[key]["gameextrainfo"]))
             else:
-                await broadcast(sub["subscribes"][key],
+                await broadcast(glist,
                                 "%s 正在游玩 %s ！" % (val["personaname"], val["gameextrainfo"]))
 
 
-async def broadcast(group_list: list, msg):
+async def broadcast(group_list: Iterable, msg):
     for group in group_list:
         await sv.bot.send_group_msg(group_id=group, message=msg)
         await sleep(0.5)

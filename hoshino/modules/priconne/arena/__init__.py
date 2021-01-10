@@ -11,7 +11,6 @@ sv = Service('pcr-arena', manage_priv=Priv.SUPERUSER)
 from ..chara import Chara
 from . import arena
 
-DISABLE_NOTICE = '本群竞技场查询功能已禁用\n如欲开启，请与维护组联系'
 
 lmt = FreqLimiter(5)
 
@@ -20,19 +19,19 @@ aliases_b = tuple('b' + a for a in aliases) + tuple('B' + a for a in aliases)+tu
 aliases_tw = tuple('台' + a for a in aliases)
 aliases_jp = tuple('日' + a for a in aliases)
 
-@sv.on_command('竞技场查询', aliases=aliases, deny_tip=DISABLE_NOTICE, only_to_me=False,can_private=1)
+@sv.on_command('竞技场查询', aliases=aliases, only_to_me=False,can_private=1)
 async def arena_query(session:CommandSession):
     await _arena_query(session, region=1)
 
-@sv.on_command('b竞技场查询', aliases=aliases_b, deny_tip=DISABLE_NOTICE, only_to_me=False,can_private=1)
+@sv.on_command('b竞技场查询', aliases=aliases_b,only_to_me=False,can_private=1)
 async def arena_query_b(session:CommandSession):
     await _arena_query(session, region=2)
 
-@sv.on_command('台竞技场查询', aliases=aliases_tw, deny_tip=DISABLE_NOTICE, only_to_me=False,can_private=1)
+@sv.on_command('台竞技场查询', aliases=aliases_tw,only_to_me=False,can_private=1)
 async def arena_query_tw(session:CommandSession):
     await _arena_query(session, region=3)
 
-@sv.on_command('日竞技场查询', aliases=aliases_jp, deny_tip=DISABLE_NOTICE, only_to_me=False,can_private=1)
+@sv.on_command('日竞技场查询', aliases=aliases_jp, only_to_me=False,can_private=1)
 async def arena_query_jp(session:CommandSession):
     await _arena_query(session, region=4)
 
