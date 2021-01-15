@@ -50,7 +50,7 @@ async def steam(session: CommandSession):
         await session.send("订阅失败")
 
 
-@sv.on_command("steam订阅列表")
+@sv.on_command("steam订阅列表",aliases=('查看本群steam','本群steam订阅'))
 async def steam(session: CommandSession):
     group_id = session.event["group_id"]
     msg = '======steam======\n'
@@ -65,7 +65,7 @@ async def steam(session: CommandSession):
     await session.send(msg)
 
 
-@sv.on_command("查询steam账号")
+@sv.on_command("查询steam账号",aliases=('查看steam','查看steam订阅','steam'))
 async def steam(session: CommandSession):
     account = session.current_arg_text.strip()
     rsp = await get_account_status(account)
@@ -140,7 +140,7 @@ async def check_steam_status():
                                 "%s 不玩 %s 了！" % (val["personaname"], old_state[key]["gameextrainfo"]))
             else:
                 await broadcast(glist,
-                                "%s 正在游玩 %s ！" % (val["personaname"], val["gameextrainfo"]))
+                                "%s 开始游玩 %s ！" % (val["personaname"], val["gameextrainfo"]))
 
 
 async def broadcast(group_list: Iterable, msg):
