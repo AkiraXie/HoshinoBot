@@ -5,6 +5,7 @@ from typing import List, Dict, Optional
 import feedparser
 from feedparser import FeedParserDict
 import peewee as pw
+from bs4 import BeautifulSoup
 from hoshino.aiohttpx import get
 BASE_URL = "https://rsshub.akiraxie.me/"
 
@@ -42,7 +43,7 @@ class Rss:
         return str(dt+timedelta(hours=8))
 
     @staticmethod
-    def _get_rssdic(entry: FeedParserDict) -> Dict:
+    def _get_rssdic(entry: FeedParserDict,flag:bool=False) -> Dict:
         ret = {'标题': entry.title,
                '时间': entry.updated,
                '链接': entry.link, }
@@ -50,12 +51,14 @@ class Rss:
             ret['时间'] = Rss.format_time(ret['时间'])
         except:
             pass
+        if flag:
+            ret['正文']=BeautifulSoup(entry.summary,"lxml").get_text()
         return ret
 
     async def get_new_entry_info(self) -> Optional[Dict]:
         try:
             entries = await self.feed_entries
-            return Rss._get_rssdic(entries[0])
+            return Rss._get_rssdic(entries[0],True)
         except:
             return None
 
