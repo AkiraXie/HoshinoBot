@@ -7,11 +7,10 @@ try:
 except:
     import json
 
-from hoshino import aiohttpx, aiorequests, util
-from . import sv
+from hoshino import aiohttpx, aiorequests, util,logger
 from ..chara import Chara
 
-logger = sv.logger
+
 
 '''
 Database for arena likes & dislikes

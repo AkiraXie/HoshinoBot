@@ -1,4 +1,4 @@
-from . import arena
+from .arena import refresh_quick_key_dic,do_query
 from ..chara import Chara
 import re
 import time
@@ -43,7 +43,7 @@ async def arena_query_jp(session: CommandSession):
 
 async def _arena_query(session: CommandSession, region: int):
 
-    arena.refresh_quick_key_dic()
+    refresh_quick_key_dic()
     uid = session.ctx['user_id']
 
     if not lmt.check(uid):
@@ -54,7 +54,6 @@ async def _arena_query(session: CommandSession, region: int):
     argv = session.current_arg_text.strip()
     argv = re.sub(r'[?？，,_]', '', argv)
     defen, unknown = Chara.parse_team(argv)
-    await session.send(f'{defen}')
 
     if unknown:
         session.finish('无法识别{}' % unknown, at_sender=True)
@@ -71,7 +70,7 @@ async def _arena_query(session: CommandSession, region: int):
     # 执行查询
     sv.logger.info('Doing query...')
     try:
-        res = await arena.do_query(defen, uid, region)
+        res = await do_query(defen, uid, region)
     except TypeError:
         session.finish(
             '查询出错，请再次查询\n如果多次查询失败，请先移步pcrdfans.com进行查询，并可联系维护组', at_sender=True)
