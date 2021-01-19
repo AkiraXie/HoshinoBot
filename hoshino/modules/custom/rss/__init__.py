@@ -1,5 +1,5 @@
 import asyncio
-from typing import Tuple
+from typing import List, Tuple
 from nonebot.argparse import ArgumentParser
 from nonebot import CommandSession
 from PIL import Image, ImageDraw, ImageFont
@@ -15,7 +15,7 @@ fontpath2 = R.img('priconne/gadget/simhei.ttf').path
 def getsize(text: str, fontsize: int) -> Tuple[int]:
     lines = text.split('\n')
     width = max([len(line) for line in lines])
-    return width*(fontsize+1), len(lines)*(fontsize+3)+4
+    return width*fontsize, len(lines)*(fontsize+3)+4
 
 
 def sumsize(a, b, c, d) -> Tuple[int]:
@@ -24,7 +24,7 @@ def sumsize(a, b, c, d) -> Tuple[int]:
 
 def info2pic(info: dict) -> str:
     title = f"标题: {info['标题']}"
-    text = f"正文:\n{info['正文']}\n时间: {info['时间']}"
+    text = f"正文:\n{info['正文']}\n时间: {info['时间']}" 
     textsize = getsize(text, 18)
     titlesize = getsize(title, 22)
     base = Image.new('RGB', sumsize(*textsize, *titlesize), (255, 255, 255))
@@ -34,8 +34,17 @@ def info2pic(info: dict) -> str:
     draw.text((0, 0), title, font=font2, fill=(0,0,0))
     draw.text((0, titlesize[1]), text, font=font1, fill=(0,0,0))
     return pic2b64(base)
-
-
+def infos2pic(infos:List[dict])->str:
+    texts=[]
+    for info in infos:
+       text= f"标题: {info['标题']}\n时间: {info['时间']}\n======"
+       texts.append(text)
+    texts='\n'.join(texts)
+    base = Image.new('RGB', getsize(texts,20), (255, 255, 255))
+    draw = ImageDraw.Draw(base)
+    font1 = ImageFont.truetype(fontpath1, 20)
+    draw.text((0, 0), texts, font=font1, fill=(0,0,0))
+    return pic2b64(base)
 @sv.on_command('添加订阅', aliases=('addrss', '增加订阅'), shell_like=True)
 async def addrss(session: CommandSession):
     parser = ArgumentParser(session=session)
@@ -115,7 +124,7 @@ async def lookrsslist(session: CommandSession):
                                                               session.event.group_id)
         msg = ['本群订阅如下:']
         for r in res:
-            msg.append(f'订阅标题:{r.name}\n订阅路由:{r.url}\n=====')
+            msg.append(f'订阅标题:{r.name}\n订阅链接:{await Rss(r.url).link}\n=====')
     except Exception as e:
         sv.logger.exception(e)
         sv.logger.error(type(e))
@@ -136,14 +145,12 @@ async def lookrss(session: CommandSession):
                                                 session.event.group_id)
         r = res[0]
         rss = Rss(r.url, limit)
-        infolist = await rss.get_all_entry_info()
+        infos = await rss.get_all_entry_info()
     except Exception as e:
         sv.logger.exception(e)
         sv.logger.error(type(e))
         session.finish(f'查订阅{name}失败')
     msg = [f'{name}的最近记录:']
-    for info in infolist:
-        for k, v in info.items():
-            msg.append(f'{k}: {v}')
-        msg.append('==========')
+    msg.append(f'[CQ:image,file={infos2pic(infos)}]')
+    msg.append('详情可看: '+await rss.link)
     session.finish('\n'.join(msg))

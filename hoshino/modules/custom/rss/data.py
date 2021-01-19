@@ -28,7 +28,10 @@ class Rss:
             return feed.entries
         else:
             return
-
+    @property
+    async def link(self)->str:
+        feed=await self.feed
+        return feed.feed.link
     @property
     async def has_entries(self) -> bool:
         return (await self.feed_entries) is not None

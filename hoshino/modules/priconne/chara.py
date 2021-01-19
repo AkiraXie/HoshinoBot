@@ -2,10 +2,11 @@ import os
 import base64
 import importlib
 from io import BytesIO
+from typing import List
 from PIL import Image,ImageDraw,ImageFont
 import requests
 import zhconv
-
+import pygtrie
 from . import priconne_data,pcrdatapath,jsonpath
 from hoshino import scheduled_job,aiorequests,sucmd,logger,R, ResImg
 
@@ -21,7 +22,7 @@ except Exception as e:
 os.makedirs(R.img(f'priconne/gadget/').path,exist_ok=True)
 os.makedirs(R.img(f'priconne/card/').path,exist_ok=True)
 os.makedirs(R.img(f'priconne/unit/').path,exist_ok=True)
-NAME2ID = {}
+NAME2ID = pygtrie.CharTrie()
 
 #更新数据
 async def reload_pcrdata():
@@ -252,8 +253,20 @@ class Chara:
             s = gadget_equip.resize((l, l), Image.LANCZOS)
             pic.paste(s, (a, b, a+l, b+l), s)
         return pic
-
-
+    @staticmethod
+    def parse_team(namestr:str)->tuple:
+        namestr=normname(namestr.strip())
+        team = []
+        unknown =[]
+        while namestr:
+            item = NAME2ID.longest_prefix(namestr)
+            if not item:
+                unknown.append(namestr[0])
+                namestr = namestr[1:].lstrip()
+            else:
+                team.append(item.value)
+                namestr = namestr[len(item.key):].lstrip()
+        return team, ''.join(unknown)
     @staticmethod
     def gen_team_pic(team, size=64, star_slot_verbose=True,text=None):
         num = len(team)
