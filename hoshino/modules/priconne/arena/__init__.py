@@ -54,9 +54,10 @@ async def _arena_query(session: CommandSession, region: int):
     argv = session.current_arg_text.strip()
     argv = re.sub(r'[?？，,_]', '', argv)
     defen, unknown = Chara.parse_team(argv)
-
+    
     if unknown:
-        session.finish('无法识别{}' % unknown, at_sender=True)
+        session.finish(f'无法识别{unknown}' , at_sender=True)
+
     if not defen:
         session.finish('请输入防守方角色', at_sender=True)
     if 5 < len(defen):
@@ -111,3 +112,4 @@ async def _arena_query(session: CommandSession, region: int):
     sv.logger.debug('Arena sending result...')
     await session.send('\n'.join(msg), at_sender=1)
     sv.logger.debug('Arena result sent!')
+    
