@@ -1,12 +1,13 @@
 from hoshino import Service,R,sucmd,scheduled_job
 from .calendar import *
-
+from PIL import ImageFont
+from hoshino.util import text2CQ
 svjp = Service('calendar-jp', enable_on_default=False)
 svbl = Service('calendar-bili', enable_on_default=False)
 svtw = Service('calendar-tw', enable_on_default=False)
 maiyao=R.img('maiyao.png').cqcode
-
-
+fontpath = R.img('priconne/gadget/simhei.ttf').path
+font=ImageFont.truetype(fontpath,20)
 @scheduled_job('cron', hour='*/3', jitter=40)
 async def db_check_ver():
     await check_ver(svjp, 'jp')
@@ -26,16 +27,16 @@ async def push_bl_maiyao():
 
 @svjp.scheduled_job('cron', hour='15', minute='05')
 async def push_jp_calendar():
-    await svjp.broadcast(await db_message(svjp, 'jp'), 'calendar-jp')
+    await svjp.broadcast(text2CQ(await db_message(svjp, 'jp'),font), 'calendar-jp')
 
 
 @svbl.scheduled_job('cron', hour='15', minute='15')
 async def push_bl_calendar():
-    await svbl.broadcast(await db_message(svbl, 'bili'), 'calendar-bilibili')
+    await svbl.broadcast(text2CQ(await db_message(svbl, 'bili'),font), 'calendar-bilibili')
 
 @svtw.scheduled_job('cron', hour='15', minute='25')
 async def push_bl_calendar():
-    await svtw.broadcast(await db_message(svtw, 'tw'), 'calendar-tw')
+    await svtw.broadcast(text2CQ(await db_message(svtw, 'tw'),font), 'calendar-tw')
 
 
 
@@ -63,30 +64,30 @@ async def look_bilibili_calendar(bot, ctx, match):
     is_future = match.group(1) == '预定'
     is_all = not match.group(1)
     if is_now:
-        await bot.send(ctx,await db_message(svbl, 'bili', 'now'), at_sender=True)
+        await bot.send(ctx,text2CQ(await db_message(svbl, 'bili', 'now'),font), at_sender=True)
     if is_future:
-        await bot.send(ctx,await db_message(svbl, 'bili', 'future'), at_sender=True)
+        await bot.send(ctx,text2CQ(await db_message(svbl, 'bili', 'future'),font), at_sender=True)
     if is_all:
-        await bot.send(ctx,await db_message(svbl, 'bili', 'all'), at_sender=True)
+        await bot.send(ctx,text2CQ(await db_message(svbl, 'bili', 'all'),font), at_sender=True)
 @svjp.on_rex(r'^日服(当前|预定)?日程$', normalize=True, event='group')
 async def look_jp_calendar(bot, ctx, match):
     is_now = match.group(1) == '当前'
     is_future = match.group(1) == '预定'
     is_all = not match.group(1)
     if is_now:
-        await bot.send(ctx, await db_message(svjp, 'jp', 'now'), at_sender=True)
+        await bot.send(ctx, text2CQ(await db_message(svjp, 'jp', 'now'),font), at_sender=True)
     if is_future:
-        await bot.send(ctx, await db_message(svjp, 'jp', 'future'), at_sender=True)
+        await bot.send(ctx, text2CQ(await db_message(svjp, 'jp', 'future'),font), at_sender=True)
     if is_all:
-        await bot.send(ctx, await db_message(svjp, 'jp', 'all'), at_sender=True)
+        await bot.send(ctx, text2CQ(await db_message(svjp, 'jp', 'all'),font), at_sender=True)
 @svtw.on_rex(r'^台服(当前|预定)?日程$', normalize=True, event='group')
 async def look_tw_calendar(bot, ctx, match):
     is_now = match.group(1) == '当前'
     is_future = match.group(1) == '预定'
     is_all = not match.group(1)
     if is_now:
-        await bot.send(ctx, await db_message(svtw, 'tw', 'now'), at_sender=True)
+        await bot.send(ctx, text2CQ(await db_message(svtw, 'tw', 'now'),font), at_sender=True)
     if is_future:
-        await bot.send(ctx, await db_message(svtw, 'tw', 'future'), at_sender=True)
+        await bot.send(ctx, text2CQ(await db_message(svtw, 'tw', 'future'),font), at_sender=True)
     if is_all:
-        await bot.send(ctx, await db_message(svtw, 'tw', 'all'), at_sender=True)
+        await bot.send(ctx, text2CQ(await db_message(svtw, 'tw', 'all'),font), at_sender=True)

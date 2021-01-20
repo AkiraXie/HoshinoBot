@@ -5,7 +5,8 @@ import base64
 import zhconv
 import unicodedata
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw
+from functools import reduce
 from collections import defaultdict
 from matplotlib import pyplot as plt
 from datetime import datetime, timedelta
@@ -60,14 +61,44 @@ async def silence(ctx, ban_time, ignore_super_user=False):
         logger.exception(e)
 
 
-def pic2b64(pic:Image) -> str:
+def get_text_size(text: str, font: ImageFont.ImageFont) -> tuple:
+    lines = text.split('\n')
+
+    def getsize(s: str):
+        return font.getsize(s) if s else font.getsize('你')
+    linesizes = [getsize(line) for line in lines]
+
+    def sumsize(l1: tuple, l2: tuple) -> tuple:
+        return max(l1[0], l2[0]), l1[1]+l2[1]+2
+    a = reduce(sumsize, (l for l in linesizes), (0, 0))
+    return a[0], a[1]
+
+
+def text2pic(text: str, font: ImageFont.ImageFont) -> Image.Image:
+    size = get_text_size(text, font)
+    base = Image.new('RGBA', size, (255, 255, 255, 255))
+    dr = ImageDraw.Draw(base)
+    dr.text((0, 0), text, font=font, fill='#000000')
+    return base
+
+
+def CQimage(image: str, cache: int = 1) -> str:
+    return f'[CQ:image,cache={cache},file={image}]'
+
+
+def pic2b64(pic: Image.Image) -> str:
     buf = BytesIO()
     pic.save(buf, format='PNG')
-    base64_str = base64.b64encode(buf.getvalue()).decode()   #, encoding='utf8')
+    base64_str = base64.b64encode(
+        buf.getvalue()).decode()  # , encoding='utf8')
     return 'base64://' + base64_str
 
 
-def fig2b64(plt:plt) -> str:
+def text2CQ(text: str, font: ImageFont.ImageFont) -> str:
+    return CQimage(pic2b64(text2pic(text, font)))
+
+
+def fig2b64(plt: plt) -> str:
     buf = BytesIO()
     plt.savefig(buf, format='PNG', dpi=100)
     base64_str = base64.b64encode(buf.getvalue()).decode()
@@ -77,7 +108,8 @@ def fig2b64(plt:plt) -> str:
 def concat_pic(pics, border=5):
     num = len(pics)
     w, h = pics[0].size
-    des = Image.new('RGBA', (w, num * h + (num-1) * border), (255, 255, 255, 255))
+    des = Image.new('RGBA', (w, num * h + (num-1) * border),
+                    (255, 255, 255, 255))
     for i, pic in enumerate(pics):
         des.paste(pic, (0, i * (h + border)), pic)
     return des
@@ -95,8 +127,11 @@ def normalize_str(string) -> str:
 
 MONTH_NAME = ('睦月', '如月', '弥生', '卯月', '皐月', '水無月'
               '文月', '葉月', '長月', '神無月', '霜月', '師走')
-def month_name(x:int) -> str:
+
+
+def month_name(x: int) -> str:
     return MONTH_NAME[x - 1]
+
 
 DATE_NAME = (
     '初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
@@ -104,22 +139,27 @@ DATE_NAME = (
     '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十',
     '卅一'
 )
-def date_name(x:int) -> str:
+
+
+def date_name(x: int) -> str:
     return DATE_NAME[x - 1]
+
 
 NUM_NAME = (
     '〇〇', '〇一', '〇二', '〇三', '〇四', '〇五', '〇六', '〇七', '〇八', '〇九',
-    '一〇', '一一', '一二', '一三', '一四', '一五', '一六', '一七', '一八', '一九', 
-    '二〇', '二一', '二二', '二三', '二四', '二五', '二六', '二七', '二八', '二九', 
-    '三〇', '三一', '三二', '三三', '三四', '三五', '三六', '三七', '三八', '三九', 
-    '四〇', '四一', '四二', '四三', '四四', '四五', '四六', '四七', '四八', '四九', 
+    '一〇', '一一', '一二', '一三', '一四', '一五', '一六', '一七', '一八', '一九',
+    '二〇', '二一', '二二', '二三', '二四', '二五', '二六', '二七', '二八', '二九',
+    '三〇', '三一', '三二', '三三', '三四', '三五', '三六', '三七', '三八', '三九',
+    '四〇', '四一', '四二', '四三', '四四', '四五', '四六', '四七', '四八', '四九',
     '五〇', '五一', '五二', '五三', '五四', '五五', '五六', '五七', '五八', '五九',
-    '六〇', '六一', '六二', '六三', '六四', '六五', '六六', '六七', '六八', '六九', 
-    '七〇', '七一', '七二', '七三', '七四', '七五', '七六', '七七', '七八', '七九', 
-    '八〇', '八一', '八二', '八三', '八四', '八五', '八六', '八七', '八八', '八九', 
+    '六〇', '六一', '六二', '六三', '六四', '六五', '六六', '六七', '六八', '六九',
+    '七〇', '七一', '七二', '七三', '七四', '七五', '七六', '七七', '七八', '七九',
+    '八〇', '八一', '八二', '八三', '八四', '八五', '八六', '八七', '八八', '八九',
     '九〇', '九一', '九二', '九三', '九四', '九五', '九六', '九七', '九八', '九九',
 )
-def time_name(hh:int, mm:int) -> str:
+
+
+def time_name(hh: int, mm: int) -> str:
     return NUM_NAME[hh] + NUM_NAME[mm]
 
 
@@ -132,12 +172,13 @@ class FreqLimiter:
         return bool(time.time() >= self.next_time[key])
 
     def start_cd(self, key, cd_time=0):
-        self.next_time[key] = time.time() + cd_time if cd_time > 0 else self.default_cd
+        self.next_time[key] = time.time(
+        ) + cd_time if cd_time > 0 else self.default_cd
 
 
 class DailyNumberLimiter:
     tz = pytz.timezone('Asia/Shanghai')
-    
+
     def __init__(self, max_num):
         self.today = -1
         self.count = defaultdict(int)
