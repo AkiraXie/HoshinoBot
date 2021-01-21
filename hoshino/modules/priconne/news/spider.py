@@ -65,7 +65,7 @@ class SonetSpider(BaseSpider):
         soup = BeautifulSoup(await resp.text, 'lxml')
         return [
             Item(idx=dd.a["href"],
-                 content=f"{dd.text}\n▲www.princessconnect.so-net.tw{dd.a['href']}"
+                 content=f"{dd.text}\nwww.princessconnect.so-net.tw{dd.a['href']}"
             ) for dd in soup.find_all("dd")
         ]
 
@@ -80,7 +80,7 @@ class BiliSpider(BaseSpider):
         content = await resp.json()
         items = [
             Item(idx=n["id"],
-                 content="{title}\n▲game.bilibili.com/pcr/news.html#detail={id}".format_map(n)
+                 content="{title}\ngame.bilibili.com/pcr/news.html#detail={id}".format_map(n)
             ) for n in content["data"]
         ]
         return items

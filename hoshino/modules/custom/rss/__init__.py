@@ -4,7 +4,7 @@ from nonebot.argparse import ArgumentParser
 from nonebot import CommandSession
 from PIL import Image, ImageFont
 from .data import Rss, Rssdata, BASE_URL
-from hoshino import Service, aiohttpx, R
+from hoshino import Service, aiohttpx, R,sucmd
 from hoshino.util import pic2b64, get_text_size, text2pic,CQimage,text2CQ
 sv = Service('rss',
              enable_on_default=False, visible=False)
@@ -18,11 +18,11 @@ font3 = ImageFont.truetype(fontpath2, 20)
 def info2pic(info: dict) -> str:
     title = f"标题: {info['标题']}"
     text = f"正文:\n{info['正文']}\n时间: {info['时间']}"
-    titlesize = get_text_size(title, font2)
+    titlesize = get_text_size(title, font2,(20,20,20,0))
     textsize = get_text_size(text, font1)
     sumsize = max(titlesize[0], textsize[0]), titlesize[1]+textsize[1]
     base = Image.new('RGBA', sumsize, (255, 255, 255, 255))
-    titlepic = text2pic(title, font2)
+    titlepic = text2pic(title, font2,(20,20,20,0))
     base.paste(titlepic, (0, 0))
     textpic = text2pic(text, font1)
     base.paste(textpic, (0, titlesize[1]))
@@ -146,4 +146,24 @@ async def lookrss(session: CommandSession):
     msg = [f'{name}的最近记录:']
     msg.append(infos2pic(infos))
     msg.append('详情可看: '+await rss.link)
+    session.finish('\n'.join(msg))
+@sucmd('testrss',0,shell_like=True)
+async def testrss(session: CommandSession):
+    parser = ArgumentParser(session=session)
+    parser.add_argument('name')
+    args = parser.parse_args(session.argv)
+    name = args.name
+    try:
+        res = Rssdata.select(Rssdata.url).where(Rssdata.name == name, Rssdata.group ==
+                                                session.event.group_id)
+        r = res[0]
+        rss = Rss(r.url)
+        newinfo = await rss.get_new_entry_info()
+    except Exception as e:
+        sv.logger.exception(e)
+        sv.logger.error(type(e))
+        session.finish(f'test {name}失败')
+    msg = [f'订阅 {name} TEST！']
+    msg.append(CQimage(info2pic(newinfo)))
+    msg.append(f'链接: {newinfo["链接"]}')
     session.finish('\n'.join(msg))

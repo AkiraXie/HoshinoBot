@@ -1,5 +1,6 @@
 import os
 import time
+from typing import Tuple
 import pytz
 import base64
 import zhconv
@@ -61,24 +62,34 @@ async def silence(ctx, ban_time, ignore_super_user=False):
         logger.exception(e)
 
 
-def get_text_size(text: str, font: ImageFont.ImageFont) -> tuple:
-    lines = text.split('\n')
+def get_text_size(text: str, font: ImageFont.ImageFont,padding:Tuple[int,int,int,int]=(20,20,20,20),spacing:int=5) -> tuple:
+    '''
+    返回文本转图片的图片大小
+    
+    *`text`：用来转图的文本
+    *`font`：一个`ImageFont`实例
+    *`padding`：一个四元`int`元组，分别是左、右、上、下的留白大小
+    *`spacing`: 文本行间距
+    '''
+    with Image.new('RGBA', (1,1), (255, 255, 255, 255)) as base:
+        dr = ImageDraw.ImageDraw(base)
+    ret=dr.textsize(text,font=font,spacing=spacing)
+    return ret[0]+padding[0]+padding[1],ret[1]+padding[2]+padding[3]
 
-    def getsize(s: str):
-        return font.getsize(s) if s else font.getsize('你')
-    linesizes = [getsize(line) for line in lines]
 
-    def sumsize(l1: tuple, l2: tuple) -> tuple:
-        return max(l1[0], l2[0]), l1[1]+l2[1]+2
-    a = reduce(sumsize, (l for l in linesizes), (0, 0))
-    return a[0], a[1]
-
-
-def text2pic(text: str, font: ImageFont.ImageFont) -> Image.Image:
-    size = get_text_size(text, font)
+def text2pic(text: str, font: ImageFont.ImageFont,padding:Tuple[int,int,int,int]=(20,20,20,20),spacing:int=5) -> Image.Image:
+    '''
+    返回一个文本转化后的`Image`实例
+    
+    *`text`：用来转图的文本
+    *`font`：一个`ImageFont`实例
+    *`padding`：一个四元`int`元组，分别是左、右、上、下的留白大小
+    *`spacing`: 文本行间距
+    '''
+    size = get_text_size(text, font,padding,spacing)
     base = Image.new('RGBA', size, (255, 255, 255, 255))
-    dr = ImageDraw.Draw(base)
-    dr.text((0, 0), text, font=font, fill='#000000')
+    dr = ImageDraw.ImageDraw(base)
+    dr.text((padding[0], padding[2]), text, font=font, fill='#000000',spacing=spacing)
     return base
 
 
