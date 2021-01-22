@@ -1,4 +1,4 @@
-from .arena import refresh_quick_key_dic,do_query
+from .arena import refresh_quick_key_dic, do_query
 from ..chara import Chara
 import re
 import time
@@ -55,9 +55,8 @@ async def _arena_query(session: CommandSession, region: int):
     argv = re.sub(r'[?？，,_]', '', argv)
     defen, unknown = Chara.parse_team(argv)
     if 1701 in defen or 1702 in defen:
-        session.finish(f'由于pcrdfans.com的限制,bot端暂不支持环奈或者环奈(振袖)的查询,如有需要可去网页端查。' , at_sender=True)
-    if unknown:
-        session.finish(f'无法识别{unknown}' , at_sender=True)
+        session.finish(
+            f'由于pcrdfans.com的限制,bot端暂不支持环奈与环奈(振袖)的查询,如有需要可去网页端查。', at_sender=True)
 
     if not defen:
         session.finish('请输入防守方角色', at_sender=True)
@@ -111,6 +110,7 @@ async def _arena_query(session: CommandSession, region: int):
     ]
     msg.append('Support by pcrdfans_com')
     sv.logger.debug('Arena sending result...')
+    if unknown:
+        await session.send(f'无法识别"{unknown}",请仅输入角色名规范查询')
     await session.send('\n'.join(msg), at_sender=1)
     sv.logger.debug('Arena result sent!')
-    
