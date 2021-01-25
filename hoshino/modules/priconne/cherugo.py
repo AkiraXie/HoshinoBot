@@ -61,7 +61,6 @@ async def cherulize(session:CommandSession):
     s = session.current_arg_text
     if 'granbluefantasy.jp' in s:
         session.finish(f'骑空士爬\n{qksimg}', at_sender=True)
-        await util.silence(session.ctx, 60)
     if len(s) > 500:
         session.finish('切、切噜太长切不动勒切噜噜...', at_sender=True)
     session.finish('切噜～♪' + str2cheru(s))

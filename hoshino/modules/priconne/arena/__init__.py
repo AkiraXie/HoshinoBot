@@ -54,9 +54,6 @@ async def _arena_query(session: CommandSession, region: int):
     argv = session.current_arg_text.strip()
     argv = re.sub(r'[?？，,_]', '', argv)
     defen, unknown = Chara.parse_team(argv)
-    if 1701 in defen or 1702 in defen:
-        session.finish(
-            f'由于pcrdfans.com的限制,bot端暂不支持环奈与环奈(振袖)的查询,如有需要可去网页端查。', at_sender=True)
 
     if not defen:
         session.finish('请输入防守方角色', at_sender=True)
