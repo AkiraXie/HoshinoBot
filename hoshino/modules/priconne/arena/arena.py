@@ -67,15 +67,7 @@ def gen_quick_key(true_id: str, user_id: int) -> str:
     return base64.b32encode(qkey.to_bytes(3, 'little')).decode()[:5]
 
 
-def get_true_id(quick_key: str, user_id: int) -> str:
-    mask = user_id & 0xffffff
-    if not isinstance(quick_key, str) or len(quick_key) != 5:
-        return None
-    qkey = (quick_key + '===').encode()
-    qkey = int.from_bytes(base64.b32decode(
-        qkey, casefold=True, map01=b'I'), 'little')
-    qkey ^= mask
-    return quick_key_dic.get(qkey, None)
+
 
 
 def __get_auth_key():

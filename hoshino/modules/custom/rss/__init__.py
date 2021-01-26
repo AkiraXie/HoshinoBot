@@ -16,15 +16,15 @@ font3 = ImageFont.truetype(fontpath2, 20)
 
 
 def info2pic(info: dict) -> str:
-    title = f"标题: {info['标题']}"
+    title = f"标题: {info['标题']}\n"
     text = f"正文:\n{info['正文']}\n时间: {info['时间']}"
     titlesize = get_text_size(title, font2,(20,20,20,0))
-    textsize = get_text_size(text, font1)
+    textsize = get_text_size(text, font1,(20,20,10,10))
     sumsize = max(titlesize[0], textsize[0]), titlesize[1]+textsize[1]
     base = Image.new('RGBA', sumsize, (255, 255, 255, 255))
     titlepic = text2pic(title, font2,(20,20,20,0))
     base.paste(titlepic, (0, 0))
-    textpic = text2pic(text, font1)
+    textpic = text2pic(text, font1,(20,20,10,20))
     base.paste(textpic, (0, titlesize[1]))
     return pic2b64(base)
 

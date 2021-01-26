@@ -89,9 +89,8 @@ async def _arena_query(session: CommandSession, region: int):
 
     sv.logger.info('Arena generating picture...')
     atk_team = [Chara.gen_team_pic(team=entry['atk'], text="\n".join([
-        f"{entry['qkey']}",
-        f"赞 {entry['up']}",
-        f"踩 {entry['down']}",
+        f"赞  {entry['up']}",
+        f"踩  {entry['down']}",
     ])) for entry in res]
     atk_team = concat_pic(atk_team)
     atk_team = pic2b64(atk_team)
