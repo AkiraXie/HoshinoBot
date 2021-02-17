@@ -2,8 +2,8 @@
 
 **Forked from [Ice-Cirno/HoshinoBot](https://github.com/Ice-Cirno/HoshinoBot)  and customized by AkiraXie**
 
-
-## 特别注意
+**The repo has been archived in memory of my coding life about Nonebot1, and won't fix the state .**
+## 特别提醒
 
 此HoshinoBot基于[Ice-Cirno](https://github.com/Ice-Cirno)的HoshinoBot V1,并进行了一定的定制化，添加了一些插件。与现在的HoshinoBot V2有一定的差异，如需搭建原版HoshinoBot请查阅[这里](https://github.com/Ice-Cirno/HoshinoBot)。
 
